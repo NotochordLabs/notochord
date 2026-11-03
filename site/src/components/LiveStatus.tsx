@@ -40,6 +40,12 @@ export function useLive() {
   return live;
 }
 
+/** The rail note is hidden on phones, so the same fact sits beside the menu there. */
+export function SimChip() {
+  const live = useLive();
+  return live ? null : <span className="simChip">Simulation</span>;
+}
+
 export default function LiveStatus() {
   const live = useLive();
   if (!live) return <p className="railNote">Simulation preview on historical data. The experiment has not started on chain. No funds are managed and no returns are promised.</p>;

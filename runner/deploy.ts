@@ -36,6 +36,9 @@ export function protocolHash(): Hex {
   add("runner", readdirSync("runner").filter((f) => f.endsWith(".ts")));
   add(join("data", "connectome"), ["nodes.csv", "edges.csv"]);
   add("protocol", readdirSync("protocol").filter((f) => f.endsWith(".json")));
+  // The compiled contracts and exact dependencies are part of what is being committed to.
+  add(join("runner", "artifacts"), readdirSync(join("runner", "artifacts")).filter((f) => f.endsWith(".json")));
+  add(".", ["package-lock.json"]);
   return `0x${h.digest("hex")}`;
 }
 
@@ -63,6 +66,9 @@ export async function deployReplicates(
   rules: Rules,
   genomeSize: number,
   hash: Hex,
+  /** Contracts from an interrupted deployment, so a retry does not pay for them twice. */
+  done: Manifest["replicates"] = [],
+  onProgress: (replicates: Manifest["replicates"]) => void = () => {},
 ): Promise<Manifest["replicates"]> {
   const account = wallet.account!;
   const deploy = async (abi: Abi, bytecode: string, args: unknown[]) => {
@@ -71,8 +77,8 @@ export async function deployReplicates(
     if (receipt.status !== "success" || !receipt.contractAddress) throw new Error(`Dağıtım başarısız: ${tx}`);
     return receipt.contractAddress;
   };
-  const out: Manifest["replicates"] = [];
-  for (let index = 1; index <= count; index++) {
+  const out: Manifest["replicates"] = [...done];
+  for (let index = out.length + 1; index <= count; index++) {
     const generation = await deploy(generationArtifact.abi as Abi, generationArtifact.bytecode, [
       account.address,
       index,
@@ -92,6 +98,7 @@ export async function deployReplicates(
       functionName: "specimens",
     })) as Address;
     out.push({ index, generation, fossil, specimen });
+    onProgress(out);
   }
   return out;
 }

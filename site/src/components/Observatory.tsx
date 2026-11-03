@@ -52,7 +52,7 @@ const STAGES: { name: string; caption: string; note: string }[] = [
   {
     name: "Larva",
     caption: "Swimming larva",
-    note: "The tadpole larva, about 1 mm long, which swims for a day or so. Schematic model, not to scale with the adult. The notochord has 40 cells as in the animal. Tail muscle lights with this thought’s motor spikes; the steady swim is illustrative.",
+    note: "The tadpole larva, about 1 mm long, which swims for some hours before it settles. Schematic model, not to scale with the adult. The notochord has 40 cells as in the animal. Tail muscle lights with this thought’s motor spikes; the steady swim is illustrative.",
   },
   {
     name: "Brain",
@@ -653,7 +653,7 @@ export default function Observatory() {
             ))}
           </div>
           <button className="replayIntro" onClick={() => setIntro(true)}>Replay the story</button>
-          <p>{STAGES[stage].note}</p>
+          <p className="stageNote">{STAGES[stage].note}</p>
         </div>
       </div>
 

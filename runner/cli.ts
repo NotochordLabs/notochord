@@ -1,11 +1,12 @@
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { createPublicClient, createWalletClient, defineChain, fallback, http, type Hex, type PublicClient, type WalletClient } from "viem";
+import { createPublicClient, createWalletClient, defineChain, fallback, http, type Address, type Hex, type PublicClient, type WalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { loadConnectome } from "../src/connectome";
 import { deployReplicates, protocolHash, type Manifest } from "./deploy";
 import { HOUR, labFor, makeLab, PROTOCOL_RULES, type Rules } from "./engine";
+import { deploymentProblems, loadProtocol } from "./protocol";
 import { Replicate, type Ctx } from "./replicate";
 import { formatResults, readResults } from "./report";
 import { verifyRun } from "./verify";
@@ -20,7 +21,8 @@ const arg = (name: string) => {
 const num = (name: string, fallbackValue: number) => (arg(name) !== undefined ? Number(arg(name)) : fallbackValue);
 
 const ELYSIUM_CHAIN_ID = 99901;
-const DEFAULT_RPCS = ["https://rpc.chainzy.io"];
+/** rpc.chainzy.io answers reads and returns a hash for writes, but the transaction never reached the chain (3 Nov 2026). */
+const DEFAULT_RPCS = ["https://rpc-live.boxa.club"];
 /** anvil's public test key #0. Never holds real funds. */
 const ANVIL_KEY: Hex = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 const LOCAL_CHAIN_ID = 31337;
@@ -184,17 +186,42 @@ async function deployLive() {
   const rules = rulesFromArgs();
   const count = num("replicates", 6);
   const shuffled = num("shuffled", 6);
+  const protocol = loadProtocol();
+  const problems = deploymentProblems({ name, rules, main: count, shuffled, coin: arg("coin") ?? protocol.market.coin, seed: arg("seed"), nodeVersion: process.version }, protocol);
+  if (problems.length) throw new Error(`Dağıtım durduruldu:\n  ${problems.join("\n  ")}`);
   const { publicClient, wallet } = clients(rpcUrls(), ELYSIUM_CHAIN_ID, liveKey(), 2000);
   const lab = makeLab(loadConnectome(join("data", "connectome")));
-  const startMs = (Math.floor(Date.now() / HOUR) + 2) * HOUR;
   const hash = protocolHash();
-  const deployBlock = String(await publicClient.getBlockNumber());
-  const replicates = markShuffled(await deployReplicates(publicClient, wallet, count + shuffled, rules, lab.layout.size, hash), count);
-  const verifier = await deployThoughtVerifier(publicClient, wallet, lab);
-  const manifest: Manifest = { verifier, name, chainId: ELYSIUM_CHAIN_ID, simulated: false, coin: arg("coin") ?? "HYPE", seed: arg("seed") ?? `experiment-177-chain-${name}`, startMs, rules, protocolHash: hash, replicates, deployBlock };
-  mkdirSync(join("runner", "state", name), { recursive: true });
+
+  // Written after each replicate: a failed deployment resumes instead of paying again.
+  const dir = join("runner", "state", name);
+  const progressPath = join(dir, "deploy-progress.json");
+  mkdirSync(dir, { recursive: true });
+  const saved = existsSync(progressPath) ? (JSON.parse(readFileSync(progressPath, "utf8")) as { protocolHash: Hex; deployBlock: string; replicates: Manifest["replicates"]; verifier?: Address }) : null;
+  if (saved && saved.protocolHash !== hash) throw new Error(`Yarım kalan dağıtım başka bir kodla başlamış: ${progressPath}`);
+  const balance = await publicClient.getBalance({ address: wallet.account!.address });
+  console.error(`Cüzdan ${wallet.account!.address}, bakiye ${Number(balance) / 1e18} HYPE`);
+  const deployBlock = saved?.deployBlock ?? String(await publicClient.getBlockNumber());
+  const progress = { protocolHash: hash, deployBlock, replicates: saved?.replicates ?? [], verifier: saved?.verifier };
+  const persist = () => writeFileSync(progressPath, JSON.stringify(progress, null, 2));
+  if (progress.replicates.length) console.error(`Devam ediliyor: ${progress.replicates.length} tekrar zaten dağıtılmış.`);
+  persist();
+  const total = count + shuffled;
+  progress.replicates = await deployReplicates(publicClient, wallet, total, rules, lab.layout.size, hash, progress.replicates, (done) => {
+    progress.replicates = done;
+    persist();
+    console.error(`Tekrar ${done.length}/${total} dağıtıldı.`);
+  });
+  progress.verifier ??= await deployThoughtVerifier(publicClient, wallet, lab);
+  persist();
+  console.error("ThoughtVerifier dağıtıldı.");
+  // Fixed last, so a slow deployment cannot eat into the time left before the start.
+  const startMs = (Math.floor(Date.now() / HOUR) + 2) * HOUR;
+  const manifest: Manifest = { verifier: progress.verifier, name, chainId: ELYSIUM_CHAIN_ID, simulated: false, coin: arg("coin") ?? protocol.market.coin, seed: arg("seed") ?? (name.startsWith("test-") ? `experiment-177-chain-${name}` : protocol.seed), startMs, rules, protocolHash: hash, replicates: markShuffled(progress.replicates, count), deployBlock };
   writeFileSync(manifestPath(name), JSON.stringify(manifest, null, 2));
+  rmSync(progressPath, { force: true });
   console.log(JSON.stringify(manifest, null, 2));
+  console.error(`Başlangıç: ${new Date(startMs).toISOString()}. Çalıştırıcı bu saatten ÖNCE başlatılmalı, yoksa dağıtım boşa gider.`);
 }
 
 async function runLive() {

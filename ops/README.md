@@ -1,5 +1,7 @@
 # Çalıştırma
 
+**Sınanmadı:** Docker imajı ve systemd birimi henüz çalıştırılmadı.
+
 Deney 100 gün boyunca saatte bir işlem gönderir. Çalıştırıcı durduğunda kaldığı yerden devam eder: sıradaki adımı zincirden okur. Tek sürekli veri `runner/state/` klasörüdür; kalıcı diskte tutulmalı ve yedeklenmelidir.
 
 ## Ortam değişkenleri
@@ -20,9 +22,17 @@ Deney 100 gün boyunca saatte bir işlem gönderir. Çalıştırıcı durduğund
 3. `npm run runner:run -- --name test-1` ve 2 nesil sonunda `npm run runner:verify -- --name test-1`.
 4. Gerçek deney yalnız protokol kilitlendikten sonra dağıtılır.
 
+## Kesinti sınırı
+
+Düşünceler geriye dönük tamamlanır. Çalıştırıcı başlangıç saatinden önce çalışıyor olmalı; yoksa `commitGenesis` reddedilir ve dağıtım boşa gider. Eski kodda 24 saatten uzun bir boşluk tekrarı öldürebiliyordu; güncel kod planlanan drand turu geçtiyse daha geç bir tur seçer (test: 60 saat kesinti). Yine de kesintileri kısa tut.
+
+## RPC
+
+`RPC_URLS` zincire işlem iletmeli. `rpc.chainzy.io` okuma yapıyor, hash döndürüyor, ama işlem zincire ulaşmadı (3 Kasım 2026). Yeni bir adresi önce düşük ücretli bir işlemle dene. Tek RPC tek arıza noktasıdır; asıl deneyden önce ikinci bir adres eklenmeli.
+
 ## Sunucu
 
-- **Docker:** `docker build -f ops/Dockerfile -t notochord-runner .`, sonra `runner/state` için kalıcı birim bağla.
+- **Docker:** `docker build -f ops/Dockerfile -t notochord-runner .`, sonra `runner/state` için kalıcı birim bağla. Birim `node` kullanıcısına yazılabilir olmalı.
 - **systemd:** `ops/notochord-runner.service` dosyasını `notochord-runner@<ad>.service` olarak kur.
 
 ## İzleme

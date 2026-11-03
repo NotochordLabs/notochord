@@ -128,3 +128,52 @@ test("a run on a local chain survives a crash at every kind of transaction", { s
     anvil.kill();
   }
 });
+
+test("an interrupted deployment resumes, and a long outage does not kill a replicate", { skip: !hasData || !hasAnvil, timeout: 300_000 }, async () => {
+  const candles = JSON.parse(readFileSync("data/prices-HYPE-1h.json", "utf8")).candles;
+  const rules: Rules = { ...PROTOCOL_RULES, generations: 3, holdoutHours: 2 };
+  const total = rules.generations * rules.hoursPerGeneration + rules.holdoutHours;
+  const startMs: number = candles[candles.length - 1 - total].t;
+  const port = 8605;
+  const anvil = spawn(anvilBin, ["--port", String(port), "--silent", "--timestamp", String(startMs / 1000 - 7200)], { stdio: "ignore" });
+  try {
+    await new Promise((r) => setTimeout(r, 800));
+    const transport = http(`http://127.0.0.1:${port}`);
+    const publicClient = createPublicClient({ chain: foundry, transport, pollingInterval: 20 }) as PublicClient;
+    const wallet = createWalletClient({
+      chain: foundry,
+      transport,
+      pollingInterval: 20,
+      account: privateKeyToAccount("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"),
+    }) as WalletClient;
+    const lab = makeLab(loadConnectome("data/connectome"));
+    const hash = `0x${"22".repeat(32)}` as const;
+
+    const first = await deployReplicates(publicClient, wallet, 1, rules, lab.layout.size, hash);
+    const before = await publicClient.getTransactionCount({ address: wallet.account!.address });
+    const seen: number[] = [];
+    const both = await deployReplicates(publicClient, wallet, 2, rules, lab.layout.size, hash, first, (d) => seen.push(d.length));
+    assert.equal(both[0].generation, first[0].generation, "keeps what was already deployed");
+    assert.equal(both[1].index, 2);
+    assert.deepEqual(seen, [2]);
+    assert.equal(await publicClient.getTransactionCount({ address: wallet.account!.address }), before + 2, "pays only for the missing replicate");
+
+    let clock = startMs - HOUR;
+    const ctx: Ctx = { lab, rules, seed: "outage-test", startMs, now: () => clock, drand: simulatedDrand, market: replayMarket(candles, "test"), publicClient, wallet };
+    const rep = new Replicate(ctx, 1, first[0].generation, first[0].fossil, join(mkdtempSync(join(tmpdir(), "notochord-")), "r1.json"));
+    const pump = async () => {
+      await publicClient.request({ method: "evm_mine" as never, params: [clock / 1000] as never });
+      while (await rep.step());
+    };
+    // Up until just before the first open, then nothing for 60 hours.
+    for (; clock < startMs; clock += HOUR) await pump();
+    clock = startMs + 60 * HOUR;
+    const end = startMs + (total + 2) * HOUR;
+    for (; clock <= end; clock += HOUR) await pump();
+    const results = await readResults(publicClient, [first[0].generation]);
+    assert.equal(results.generations, 3);
+    assert.equal(results.holdoutVsFlat.length, 1);
+  } finally {
+    anvil.kill();
+  }
+});

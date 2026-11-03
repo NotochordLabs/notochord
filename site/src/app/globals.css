@@ -28,6 +28,13 @@ button { font: inherit; color: inherit; }
 .rail li a { display: block; padding: 0.42rem 0.55rem; border-radius: 4px; color: var(--muted); text-decoration: none; font-size: 0.97rem; }
 .rail li a:hover { color: var(--text); }
 .rail li a[aria-current="page"] { background: var(--panel2); color: var(--text); box-shadow: inset 2px 0 0 var(--cyan); }
+.simChip { display: none; }
+@media (max-height: 720px) and (min-width: 761px) {
+  .brand { margin-bottom: 0.5rem; }
+  .rail li a { padding: 0.24rem 0.55rem; font-size: 0.92rem; }
+  .railNote { padding-top: 0.5rem; font-size: 0.72rem; }
+  .stageNote { display: none; }
+}
 .railNote { margin: auto 0.55rem 0; padding-top: 1rem; font-size: 0.78rem; line-height: 1.4; color: var(--muted); }
 .stage { grid-row: 1; min-width: 0; overflow-y: auto; }
 
@@ -301,4 +308,9 @@ body[data-intro] .stage { grid-row: 1; }
   .genRead span { display: none; }
   .timeBar { --bar: 88px; }
   .headStatus { gap: 0.4rem 1rem; }
+}
+
+@media (max-width: 760px) {
+  .simChip { display: block; margin-left: auto; flex: none; padding: 0.15rem 0.5rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 0.78rem; }
+  .simChip + .menuBtn { margin-left: 0.5rem; }
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import LiveStatus from "@/components/LiveStatus";
+import LiveStatus, { SimChip } from "@/components/LiveStatus";
 import { dateOf, ExperimentProvider, fmt, GENERATIONS, REPLICATES, useExperiment } from "@/lib/store";
 
 /** Reading pages have nothing that moves with the generation, so they get no time bar. */
@@ -81,6 +81,7 @@ function Frame({ children }: { children: React.ReactNode }) {
     <div className={bar ? "app" : "app noBar"}>
       <nav className="rail" aria-label="Sections">
         <Link href="/" className="brand"><b>Notochord</b><span>Experiment 177</span></Link>
+        <SimChip />
         <button className="menuBtn" aria-expanded={menuOpen} aria-controls="siteMenu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
         <ul id="siteMenu" className={menuOpen ? "open" : ""}>
           {NAV.map(([href, label]) => (

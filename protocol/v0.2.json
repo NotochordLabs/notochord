@@ -1,6 +1,7 @@
 {
   "version": "0.2",
   "status": "draft, not locked",
+  "seed": "experiment-177-chain-v0.2",
   "market": { "coin": "HYPE", "quote": "USDC", "interval": "1h", "source": "Hyperliquid" },
   "populations": { "selection": 64, "control": 16 },
   "generations": 100,

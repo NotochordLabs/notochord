@@ -160,7 +160,9 @@ export class Replicate {
       await this.checkAgainstChain(p);
       // Published only once the generation's last candle has closed, so the value
       // that seeds reproduction cannot be known while decisions are being made.
-      await this.tx("open", [roundAt(this.hourMs(p.generation + 1, 1))]);
+      // After a long outage the planned round has passed and the contract would refuse it
+      // for good. A later round is still unknowable now, which is the only thing that matters.
+      await this.tx("open", [roundAt(Math.max(this.hourMs(p.generation + 1, 1), now() + HOUR))]);
       return true;
     }
 
