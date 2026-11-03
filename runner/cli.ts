@@ -36,7 +36,8 @@ function clients(urls: string[], chainId: number, key: Hex, pollingInterval: num
     nativeCurrency: { name: "HYPE", symbol: "HYPE", decimals: 18 },
     rpcUrls: { default: { http: urls } },
   });
-  const transport = fallback(urls.map((u) => http(u)));
+  // Sending can be slow on a busy sequencer; a resend of the same nonce is harmless.
+  const transport = fallback(urls.map((u) => http(u, { timeout: 90_000 })));
   const publicClient = createPublicClient({ chain, transport, pollingInterval }) as PublicClient;
   const wallet = createWalletClient({ chain, transport, account: privateKeyToAccount(key), pollingInterval }) as WalletClient;
   return { publicClient, wallet };
