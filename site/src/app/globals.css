@@ -359,3 +359,62 @@ body[data-intro] .stage { grid-row: 1; }
   .chordFacts { margin-top: 2.5rem; }
   .chordFacts dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* The data bench belongs to the brain view; the animal views stay uncluttered. */
+.observatory.calm { grid-template-columns: minmax(0, 1fr); }
+.observatory.calm .bench { display: none; }
+.headLink { display: flex; align-items: center; gap: 0.9rem; }
+.headLink .headPrimary { padding: 0.3rem 0.7rem; border-radius: 6px; background: var(--text); color: var(--dark); font-weight: 600; text-decoration: none; }
+.headLink .headPrimary:hover { background: #fff; }
+
+.how { max-width: 1000px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 3rem) 4rem; }
+.how > header h1 { max-width: 20ch; font-size: clamp(2.1rem, 5vw, 3.6rem); font-weight: 500; line-height: 1.04; letter-spacing: -0.025em; color: var(--text); }
+.how > header p { max-width: 62ch; margin-top: 1.1rem; font-family: var(--serif); font-size: clamp(1.1rem, 1.8vw, 1.3rem); line-height: 1.45; color: var(--text); }
+.howSteps { list-style: none; counter-reset: step; margin: 3rem 0 0; padding: 0; }
+.howSteps li { counter-increment: step; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 2.2rem; align-items: center; padding: 1.7rem 0; border-top: 1px solid var(--line); }
+.howArt { padding: 0.7rem; border-radius: 10px; background: var(--panel); }
+.howArt svg { display: block; width: 100%; height: auto; }
+.howSteps h2 { font-size: 1.45rem; font-weight: 500; color: var(--text); }
+.howSteps h2::before { content: counter(step) ". "; color: var(--muted); }
+.howSteps p { max-width: 58ch; margin-top: 0.5rem; font-family: var(--serif); font-size: 1.08rem; line-height: 1.55; color: var(--text); }
+.howFaq { margin-top: 3rem; }
+.howFaq h2 { font-size: 1.7rem; font-weight: 500; color: var(--text); }
+.howFaq dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.8rem 2.5rem; margin: 1.3rem 0 0; }
+.howFaq dt { font-size: 1.08rem; font-weight: 600; color: var(--text); }
+.howFaq dd { margin: 0.35rem 0 0; font-family: var(--serif); font-size: 1.03rem; line-height: 1.5; color: var(--muted); }
+.howNext { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 3rem; }
+.howNext a { padding: 0.55rem 1rem; border: 1px solid var(--line); border-radius: 6px; color: var(--text); text-decoration: none; }
+.howNext a:first-child { border-color: var(--text); background: var(--text); color: var(--dark); font-weight: 600; }
+
+.testRun { max-width: 1000px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 3rem) 4rem; }
+.testTag { display: inline-block; margin: 0 0 0.9rem; padding: 0.25rem 0.65rem; border: 1px solid var(--cyan); border-radius: 999px; color: var(--cyan); font-size: 0.88rem; }
+.testRun h1 { font-size: clamp(2rem, 4.6vw, 3.2rem); font-weight: 500; line-height: 1.06; letter-spacing: -0.02em; color: var(--text); }
+.testRun header p:last-child { max-width: 66ch; margin-top: 1rem; font-family: var(--serif); font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+.testRun h2 { margin-top: 2.6rem; font-size: 1.4rem; font-weight: 500; color: var(--text); }
+.testRun a { color: var(--cyan); }
+.testNumbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem; margin-top: 2.2rem; }
+.testNumbers span { display: block; font-size: 0.9rem; color: var(--muted); }
+.testNumbers b { display: block; margin-top: 0.25rem; font-size: 1.25rem; font-weight: 500; color: var(--text); }
+.testBar { height: 6px; margin-top: 1.2rem; border-radius: 3px; background: var(--panel2); overflow: hidden; }
+.testBar i { display: block; height: 100%; background: var(--cyan); }
+.testNote { margin-top: 0.5rem; color: var(--muted); line-height: 1.5; }
+.testState { margin-top: 2.2rem; padding: 1.3rem 1.4rem; border: 1px solid var(--line); border-radius: 10px; }
+.testState strong { font-size: 1.15rem; font-weight: 500; color: var(--text); }
+.testState p { margin-top: 0.4rem; color: var(--muted); }
+.testRun code { overflow-wrap: anywhere; color: var(--text); }
+.testContracts { margin: 0.9rem 0 0; }
+.testContracts > div { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 0.8rem; padding: 0.55rem 0; border-top: 1px solid var(--line); }
+.testContracts dt { color: var(--muted); }
+.testContracts dd { margin: 0; }
+
+@media (max-width: 760px) {
+  .howSteps li { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .howFaq dl { grid-template-columns: minmax(0, 1fr); }
+  .testNumbers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .testContracts > div { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+}
+
+/* Beside the bench the brain view is narrow: the note would run over the gauge. */
+@media (min-width: 761px) and (max-width: 1280px) {
+  .observatory:not(.calm) .stageNote { display: none; }
+}

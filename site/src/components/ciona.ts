@@ -150,7 +150,7 @@ function wobble(g: THREE.BufferGeometry, amount: number) {
 /* ---- The adult: wet, translucent tissue under light from the surface ---- */
 
 const LIVING_V = `
-uniform float uTime; uniform float uSway;
+uniform float uTime; uniform float uSway; uniform float uBend; uniform float uDrive;
 varying vec3 vWN; varying vec3 vWP; varying vec3 vP; varying vec2 vUv;
 void main() {
   vec4 p = vec4(position, 1.0);
@@ -160,6 +160,13 @@ void main() {
   n = mat3(instanceMatrix) * n;
   #endif
   vP = p.xyz; vUv = uv;
+  if (uBend > 0.0) {
+    // The larva's tail: the same wave as its muscles, driven by the motor spikes.
+    float along = clamp((0.25 - p.x) / 3.4, 0.0, 1.0);
+    p.z += uBend * along * along * (sin(p.x * 2.3 + uTime * 2.4) * 0.3 + uDrive * 0.6 * sin(p.x * 1.3 + 0.7));
+    float along2 = clamp((0.2 - p.x) / 3.4, 0.0, 1.0);
+    p.y += uBend * along2 * along2 * (0.12 * sin(p.x * 1.5 + uTime * 1.2) - 0.1);
+  }
   vec4 w = modelMatrix * p;
   if (uSway > 0.0) {
     // A soft body is never straight, and the free end moves with the water.
@@ -175,9 +182,20 @@ void main() {
 const LIVING_F = `
 uniform vec3 uColor; uniform vec3 uColor2; uniform float uFade; uniform float uAlpha; uniform float uRimAlpha; uniform float uRimPower;
 uniform float uSpec; uniform float uBump; uniform float uBumpScale; uniform float uMottle; uniform float uBands; uniform float uLattice; uniform float uFolds;
-uniform float uPigFrom; uniform float uPigTo; uniform vec3 uPigment; uniform float uRootFrom; uniform float uRootTo; uniform float uStone; uniform float uBack;
+uniform float uPigFrom; uniform float uPigTo; uniform vec3 uPigment; uniform float uRootFrom; uniform float uRootTo; uniform float uStone; uniform float uBack; uniform float uCell; uniform float uRays;
 varying vec3 vWN; varying vec3 vWP; varying vec3 vP; varying vec2 vUv;
 ${NOISE}
+float walls(vec3 x) {
+  vec3 i = floor(x), f = fract(x);
+  float a = 8.0, b = 8.0;
+  for (int k = -1; k <= 1; k++) for (int j = -1; j <= 1; j++) for (int m = -1; m <= 1; m++) {
+    vec3 g = vec3(float(m), float(j), float(k));
+    vec3 o = vec3(hash(i + g), hash(i + g + 11.3), hash(i + g + 27.1));
+    float d = length(g + o - f);
+    if (d < a) { b = a; a = d; } else if (d < b) { b = d; }
+  }
+  return b - a;
+}
 float lump(vec3 p) { return noise(p) * 0.7 + noise(p * 2.3) * 0.3; }
 float fbm(vec3 p) { return noise(p) * 0.55 + noise(p * 2.1 + 3.1) * 0.3 + noise(p * 4.3 + 7.7) * 0.15; }
 void main() {
@@ -234,6 +252,19 @@ void main() {
     albedo = mix(albedo, vec3(0.8, 0.26, 0.05), smoothstep(0.88, 1.0, t) * 0.55);
     alpha = mix(alpha, 0.86, t * t);
   }
+  if (uCell > 0.0) {
+    // The epidermis, one layer of cells; their walls fade when too small to resolve.
+    float px = length(fwidth(vP)) * uCell;
+    float keep = clamp(1.4 - px * 2.2, 0.0, 1.0);
+    float wall = (1.0 - smoothstep(0.0, 0.1 + px, walls(vP * uCell))) * keep;
+    albedo = mix(albedo, uColor2, wall * 0.5);
+    alpha += wall * 0.09;
+  }
+  if (uRays > 0.0) {
+    // Fine oblique fibres of the tail fin, thinning out towards the free edge.
+    float edge = sin(vUv.y * 3.14159);
+    alpha *= (0.42 + 0.7 * smoothstep(0.6, 1.0, abs(sin((vP.x + abs(vP.y) * 1.4) * uRays)))) * smoothstep(0.0, 0.5, edge);
+  }
   if (uStone > 0.0) {
     // Patterned in world units: the rock is a stretched sphere.
     float big = smoothstep(0.3, 0.7, fbm(vWP * 0.9));
@@ -266,10 +297,10 @@ void main() {
 
 interface LivingOptions {
   color2?: string; alpha?: number; rimAlpha?: number; rimPower?: number; spec?: number; bump?: number; bumpScale?: number; mottle?: number; bands?: number; lattice?: number; folds?: number;
-  pigFrom?: number; pigTo?: number; pigment?: string; rootFrom?: number; rootTo?: number; stone?: number; back?: number; side?: THREE.Side; solid?: boolean; order?: number;
+  pigFrom?: number; pigTo?: number; pigment?: string; rootFrom?: number; rootTo?: number; stone?: number; back?: number; side?: THREE.Side; solid?: boolean; cell?: number; rays?: number;
 }
 
-function livingFactory(time: CionaUniforms, fade: { value: number }, sway: number) {
+function livingFactory(time: CionaUniforms, fade: { value: number }, sway: number, bend = 0) {
   return (color: string, o: LivingOptions = {}) => new THREE.ShaderMaterial({
     vertexShader: LIVING_V,
     fragmentShader: LIVING_F,
@@ -277,7 +308,7 @@ function livingFactory(time: CionaUniforms, fade: { value: number }, sway: numbe
     depthWrite: !!o.solid,
     side: o.side ?? THREE.FrontSide,
     uniforms: {
-      uTime: time.uTime, uSway: { value: sway }, uFade: fade,
+      uTime: time.uTime, uSway: { value: sway }, uBend: { value: bend }, uDrive: time.uDrive, uFade: fade, uCell: { value: o.cell ?? 0 }, uRays: { value: o.rays ?? 0 },
       uColor: { value: new THREE.Color(color) }, uColor2: { value: new THREE.Color(o.color2 ?? color) },
       uAlpha: { value: o.alpha ?? 1 }, uRimAlpha: { value: o.rimAlpha ?? o.alpha ?? 1 }, uRimPower: { value: o.rimPower ?? 2.2 },
       uSpec: { value: o.spec ?? 0.5 }, uBump: { value: o.bump ?? 0 }, uBumpScale: { value: o.bumpScale ?? 7 },
@@ -476,7 +507,9 @@ export function buildRock(time: CionaUniforms, fade: { value: number }) {
 
 export function buildLarva(time: CionaUniforms, fade: { value: number }) {
   const tissue = tissueFactory(time, fade, 1);
+  const live = livingFactory(time, fade, 0, 1);
   const larva = new THREE.Group();
+  const add = (mesh: THREE.Mesh, order: number) => { mesh.renderOrder = order; larva.add(mesh); return mesh; };
   // Lathes are drawn along y; negative y becomes the anterior, +x, end.
   const toAxis = (g: THREE.BufferGeometry) => g.rotateZ(Math.PI / 2);
   const d = new THREE.Object3D();
@@ -506,14 +539,16 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
     [0.6, 0.118], [1.3, 0.095], [2.0, 0.07], [2.7, 0.042], [3.25, 0.01],
   ], 96)));
   body.scale(1, 1, 0.8);
-  larva.add(new THREE.Mesh(body, tissue("#c9d8ea", 0.62, { rim: 2.4, body: 0.035, grain: 0.5, cell: 15 })));
+  const skin = { color2: "#dfe7df", alpha: 0.075, rimAlpha: 0.66, rimPower: 2.4, spec: 0.28, bump: 0.003, bumpScale: 13, cell: 24 };
+  add(new THREE.Mesh(body, live("#b8c4b9", { ...skin, side: THREE.BackSide })), 4);
+  add(new THREE.Mesh(body, live("#d4dcd0", skin)), 6);
 
   // Outer tunic: a clear, thin coat with almost no structure.
   const coat = shapeTrunk(toAxis(lathe([
     [-1.84, 0.002], [-1.74, 0.17], [-1.46, 0.33], [-1.08, 0.46], [-0.7, 0.49], [-0.36, 0.38], [-0.08, 0.21], [0.1, 0.16],
   ], 96)));
   coat.scale(1, 1, 0.82);
-  larva.add(new THREE.Mesh(coat, tissue("#a9c2dd", 0.22, { rim: 3.6, body: 0, grain: 0.2 })));
+  add(new THREE.Mesh(coat, live("#dfe8e4", { alpha: 0.025, rimAlpha: 0.32, rimPower: 3.2, spec: 0.8 })), 7);
 
   // Tail fin: a clear sheet, widest in the middle, with fine oblique fibres.
   const fin = new THREE.PlaneGeometry(3.42, 1, 180, 12);
@@ -525,18 +560,20 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
     fp.setX(i, x - 1.56);
   }
   fin.computeVertexNormals();
-  larva.add(new THREE.Mesh(fin, tissue("#b6cde6", 0.5, { rim: 1, body: 0.4, grain: 0.5, rays: 62 })));
+  add(new THREE.Mesh(fin, live("#dbe4df", { alpha: 0.26, rimAlpha: 0.36, spec: 0.35, rays: 62, side: THREE.DoubleSide, back: 0.9 })), 3);
 
   // Three adhesive palps: real, but only low domes on the snout, inside the clear coat.
   [[1.68, 0.03, 0], [1.65, -0.2, 0.1], [1.65, -0.2, -0.1]].forEach(([x, y, z]) => {
-    const palp = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), tissue("#dce9fa", 0.34, { rim: 2.2, body: 0.05, grain: 0.3 }));
+    const palp = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), live("#e6ece2", { alpha: 0.3, rimAlpha: 0.7, spec: 0.7 }));
+    palp.renderOrder = 5;
     palp.position.set(x, y, z);
     palp.scale.set(0.085, 0.05, 0.05);
     larva.add(palp);
   });
 
   // Sensory vesicle: a thin clear sac, not a ball.
-  const vesicle = new THREE.Mesh(wobble(new THREE.SphereGeometry(0.2, 40, 28), 0.04), tissue("#9fd6e4", 0.4, { rim: 2.4, body: 0.02, grain: 0.3 }));
+  const vesicle = new THREE.Mesh(wobble(new THREE.SphereGeometry(0.2, 40, 28), 0.04), live("#c3dadb", { alpha: 0.08, rimAlpha: 0.55, spec: 0.8 }));
+  vesicle.renderOrder = 3;
   vesicle.position.set(0.86, 0.13, 0);
   vesicle.scale.set(1.28, 0.8, 0.8);
   larva.add(vesicle);
@@ -547,7 +584,7 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
   pigments.push(otolithMat);
   const otolith = new THREE.Mesh(new THREE.SphereGeometry(0.034, 20, 16), otolithMat);
   otolith.position.set(0.78, 0.075, 0);
-  otolith.renderOrder = 4;
+  otolith.renderOrder = 7;
   larva.add(otolith);
   const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.012, 0.05, 8), tissue("#d9e8f2", 0.6, { rim: 1, body: 0.5, grain: 0 }));
   foot.position.set(0.78, 0.035, 0);
@@ -559,15 +596,17 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
   cup.position.set(0.98, 0.195, 0.02);
   cup.rotation.z = 1.9;
   cup.scale.set(1, 0.85, 1);
-  cup.renderOrder = 4;
+  cup.renderOrder = 7;
   larva.add(cup);
-  const lens = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), tissue("#dff0fa", 0.3, { rim: 1.6, body: 0.12, grain: 0 }));
+  const lens = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), live("#e8f2ee", { alpha: 0.25, rimAlpha: 0.75, spec: 1 }));
+  lens.renderOrder = 5;
   lens.position.set(0.95, 0.17, 0.03);
   larva.add(lens);
 
   // Endoderm and mesenchyme: many small pale cells, clustered in the back and belly of the trunk.
   const CELLS = 300;
-  const endoderm = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), tissue("#e3d3ad", 0.28, { rim: 1.5, body: 0.05, grain: 0.3 }), CELLS);
+  const endoderm = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), live("#b9ab8a", { color2: "#dcd0ae", mottle: 0.5, alpha: 0.6, rimAlpha: 0.8, spec: 0.25 }), CELLS);
+  endoderm.renderOrder = 2;
   for (let i = 0; i < CELLS; i++) {
     const a = r() * 6.28, b = Math.acos(2 * r() - 1), rr = Math.cbrt(r());
     const inBelly = i % 3 > 0;
@@ -576,14 +615,15 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
       (inBelly ? -0.13 : -0.16) + Math.cos(b) * rr * (inBelly ? 0.16 : 0.13),
       Math.sin(b) * Math.sin(a) * rr * 0.25,
     );
-    d.scale.setScalar(inBelly ? 0.02 + r() * 0.018 : 0.012 + r() * 0.01);
+    d.scale.setScalar(inBelly ? 0.015 + r() * 0.013 : 0.01 + r() * 0.008);
     d.updateMatrix();
     endoderm.setMatrixAt(i, d.matrix);
   }
   larva.add(endoderm);
 
   // Notochord: exactly 40 thin stacked cells, as in the animal, inside a faint sheath.
-  const noto = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), tissue("#f2ead7", 0.55, { rim: 1.9, body: 0.035, grain: 0.15 }), 40);
+  const noto = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), live("#ece6d2", { alpha: 0.52, rimAlpha: 0.85, spec: 0.75 }), 40);
+  noto.renderOrder = 3;
   for (let i = 0; i < 40; i++) {
     const u = i / 39;
     const radius = 0.056 * (1 - u * 0.82);
@@ -594,7 +634,7 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
   }
   larva.add(noto);
   const sheath = toAxis(lathe([[-0.17, 0.002], [-0.14, 0.06], [0.5, 0.054], [1.5, 0.036], [2.5, 0.018], [2.97, 0.003]], 24));
-  larva.add(new THREE.Mesh(sheath, tissue("#d8e2ee", 0.25, { rim: 2.4, body: 0, grain: 0.1 })));
+  add(new THREE.Mesh(sheath, live("#dfe5e0", { alpha: 0.05, rimAlpha: 0.4, spec: 0.4 })), 3);
 
   // Tail muscle: three rows of long overlapping cells on each side, lit by that side's motor spikes.
   const muscles = [0.056, -0.056].map((side) => {
@@ -609,6 +649,7 @@ export function buildLarva(time: CionaUniforms, fade: { value: number }) {
       d.updateMatrix();
       mesh.setMatrixAt(i, d.matrix);
     }
+    mesh.renderOrder = 4;
     larva.add(mesh);
     return material;
   });

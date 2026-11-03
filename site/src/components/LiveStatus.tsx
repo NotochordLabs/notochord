@@ -64,7 +64,7 @@ export function HeadStatus() {
     <dl className="headStatus">
       <div><dt>Experiment</dt><dd>{phase}</dd></div>
       <div><dt>First measurement</dt><dd>Market learning not shown</dd></div>
-      <div className="headLink"><a href="/report/">Read the report</a></div>
+      <div className="headLink"><a className="headPrimary" href="/how/">How it works</a><a href="/report/">Read the report</a></div>
     </dl>
   );
 }

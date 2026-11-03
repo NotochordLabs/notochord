@@ -190,7 +190,8 @@ export default function Observatory() {
         g.fillRect(s * dx + dx * 0.15, y.get(c)! * dy, dx * 0.7, Math.max(ratio, dy));
       }
     });
-  }, [thought]);
+    // The bench is hidden on the animal views, where the canvas has no size to draw into.
+  }, [thought, stage]);
 
   useEffect(() => {
     stageRef.current = stage;
@@ -599,7 +600,7 @@ export default function Observatory() {
   const hourTime = market && market.firstTime + (start + hour) * 3600_000;
 
   return (
-    <div className={intro ? "observatory inIntro" : "observatory"}>
+    <div className={intro ? "observatory inIntro" : stage === 2 ? "observatory" : "observatory calm"}>
       <div className="scope" ref={host} role="img" aria-label={`${STAGES[stage].caption}: schematic model of Ciona intestinalis.`}>
         {intro && <Intro onStage={setStage} onDone={() => { setIntro(false); setStage(0); }} />}
         <div className={stage === 2 ? "scopeHead compact" : "scopeHead"}>

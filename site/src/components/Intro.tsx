@@ -7,7 +7,7 @@ export interface Chapter { stage: 0 | 1 | 2; text: string; ms: number }
 export const CHAPTERS: Chapter[] = [
   { stage: 0, text: "This is Ciona intestinalis, a sea squirt. It spends its adult life fixed to a rock, filtering the water.", ms: 6000 },
   { stage: 1, text: "It did not begin this way. It began as a tiny swimming larva, with a nervous system of its own.", ms: 6000 },
-  { stage: 1, text: "When the larva settles, it absorbs most of that nervous system, and it never swims again.", ms: 5500 },
+  { stage: 1, text: "When the larva settles, most of those neurons disappear, and it never swims again.", ms: 5500 },
   { stage: 2, text: "In 2016, scientists mapped that nervous system cell by cell.", ms: 5000 },
   { stage: 2, text: "We gave its wiring to 80 artificial brains, showed them a market, and let natural selection do the rest.", ms: 6000 },
 ];
