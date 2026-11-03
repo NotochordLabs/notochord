@@ -1,17 +1,17 @@
-# Notochord çalıştırıcısı
+# Notochord runner
 
-Simülatörü kontratlara bağlar. Hangi adımın sırada olduğunu zincirden okur, bu yüzden durup yeniden başlayabilir; her `step` en çok bir işlem gönderir.
+Connects the simulator to the contracts. It reads from the chain which step comes next, so it can stop and start again; each `step` sends at most one transaction.
 
-| Komut | Ne yapar | Ağ |
+| Command | What it does | Network |
 | --- | --- | --- |
-| `npm run runner:replay` | Tam deneyi geçmiş veri ve sahte drand ile geçici yerel zincirde oynatır; sonuçları deney sonucu değildir | Yalnızca yerel (Foundry'nin `anvil` aracı gerekir) |
-| `npm run runner:check` | RPC, drand ve Hyperliquid erişimini okur | Okuma |
-| `npm run runner:deploy -- --name X` | 6 tekrarı dağıtır | Gerçek ağ, para harcar |
-| `npm run runner:run -- --name X` | Canlı döngü | Gerçek ağ, para harcar |
-| `npm run runner:status -- --name X` | Sonuçları zincirden okur | Okuma |
+| `npm run runner:replay` | Plays the full experiment on a temporary local chain with historical data and a fake drand; its results are not experiment results | Local only (needs Foundry's `anvil`) |
+| `npm run runner:check` | Reads RPC, drand and Hyperliquid access | Read |
+| `npm run runner:deploy -- --name X` | Deploys the 6 replicates | Real network, spends money |
+| `npm run runner:run -- --name X` | Live loop | Real network, spends money |
+| `npm run runner:status -- --name X` | Reads results from the chain | Read |
 
-Gerçek ağa yazmak için iki ortam değişkeni birlikte gerekir: `RUNNER_PRIVATE_KEY` ve `NOTOCHORD_LIVE=99901`. Anahtarı dosyaya veya sohbete yazma. RPC adresleri `RPC_URLS` ile virgülle verilir; biri yanıt vermezse sıradakine geçilir.
+Writing to the real network needs two environment variables together: `RUNNER_PRIVATE_KEY` and `NOTOCHORD_LIVE=99901`. Never put the key in a file or a chat. RPC endpoints go in `RPC_URLS`, comma-separated; if one does not answer, the next is used.
 
-`runner/state/` yeniden üretilemeyen genomları içerir. Canlı çalıştırmada silinmemeli ve yedeklenmelidir.
+`runner/state/` holds genomes that cannot be regenerated. During a live run it must not be deleted, and it must be backed up.
 
-Kontratlar değişirse `runner/artifacts/` yeniden üretilmelidir.
+If the contracts change, `runner/artifacts/` must be rebuilt.

@@ -33,14 +33,14 @@ const market = synthetic
 const line = "─".repeat(78);
 const pad = (x: number, w = 6) => String(x).padStart(w);
 console.log(line);
-console.log("NOTOCHORD · Deney 177");
+console.log("NOTOCHORD · Experiment 177");
 if (connectome.synthetic || market.synthetic) {
-  console.log("!! SENTETİK VERİ: Bu çalıştırma sadece kodu test eder, sonuçları anlamsızdır. !!");
+  console.log("!! SYNTHETIC DATA: this run only tests the code, its results mean nothing. !!");
 }
-console.log(`Beyin  : ${connectome.source} · ${connectome.n} hücre, ${connectome.edgeSrc.length} bağlantı`);
-console.log(`Piyasa : ${market.source} · ${market.candles.length} saat`);
+console.log(`Brain  : ${connectome.source} · ${connectome.n} cells, ${connectome.edgeSrc.length} connections`);
+console.log(`Market : ${market.source} · ${market.candles.length} hours`);
 console.log(
-  `Düzen  : ${replicates} bağımsız tekrar × ${base.generations} nesil · ${base.popSize} seçilim + ${base.controlSize} kontrol · tohum "${seed}"`,
+  `Design : ${replicates} independent replicates × ${base.generations} generations · ${base.popSize} selection + ${base.controlSize} control · seed "${seed}"`,
 );
 console.log(line);
 
@@ -49,12 +49,12 @@ const results: Result[] = [];
 for (let k = 1; k <= replicates; k++) {
   const cfg: Config = { ...base, seed: `${seed}/r${k}`, outDir: join(outRoot, `r${k}`) };
   const verbose = k === 1;
-  if (verbose) console.log(`Tekrar 1 ayrıntılı (diğerleri sadece özet):`);
+  if (verbose) console.log(`Replicate 1 in detail (the others as a summary):`);
   const r = runExperiment(connectome, market, cfg, (g) => {
     if (verbose && (g.generation % 10 === 0 || g.generation === base.generations - 1)) {
       console.log(
-        `  Nesil ${pad(g.generation, 3)} | ${g.windowStart.slice(0, 10)} | seçilim ort ${pad(g.selection.mean)} · en iyi ${pad(g.selection.best)}` +
-          ` | kontrol ort ${pad(g.control.mean)} | piyasa ${pad(g.buyHold)} | ateşlenen ${g.selection.firedMean}`,
+        `  Gen ${pad(g.generation, 3)} | ${g.windowStart.slice(0, 10)} | selection mean ${pad(g.selection.mean)} · best ${pad(g.selection.best)}` +
+          ` | control mean ${pad(g.control.mean)} | market ${pad(g.buyHold)} | fired ${g.selection.firedMean}`,
       );
     }
   });
@@ -62,21 +62,21 @@ for (let k = 1; k <= replicates; k++) {
   writeFileSync(join(cfg.outDir!, "results.json"), JSON.stringify(r, null, 2));
   results.push(r);
   console.log(
-    `Tekrar ${k}: eğitim farkı ${pad(r.training.meanDiffBps)} bps/gün · görülmemiş hafta seçilim ${pad(r.holdout.selectionMean)}` +
-      ` / kontrol ${pad(r.holdout.controlMean)} bps`,
+    `Replicate ${k}: training difference ${pad(r.training.meanDiffBps)} bps/day · unseen week selection ${pad(r.holdout.selectionMean)}` +
+      ` / control ${pad(r.holdout.controlMean)} bps`,
   );
 }
 
 const roles = results[0].roles;
 console.log(line);
-console.log(`Rol eşlemesi (fiyat: ${roles.method.price}, hacim: ${roles.method.volume}, motor: ${roles.method.motor})`);
-console.log(`  fiyat ↑  : ${roles.priceUp.join(", ")}`);
-console.log(`  fiyat ↓  : ${roles.priceDown.join(", ")}`);
-console.log(`  hacim    : ${roles.volume.join(", ")}`);
-console.log(`  motor sol: ${roles.motorL.join(", ")}`);
-console.log(`  motor sağ: ${roles.motorR.join(", ")}`);
+console.log(`Role mapping (price: ${roles.method.price}, volume: ${roles.method.volume}, motor: ${roles.method.motor})`);
+console.log(`  price ↑  : ${roles.priceUp.join(", ")}`);
+console.log(`  price ↓  : ${roles.priceDown.join(", ")}`);
+console.log(`  volume   : ${roles.volume.join(", ")}`);
+console.log(`  motor L  : ${roles.motorL.join(", ")}`);
+console.log(`  motor R  : ${roles.motorR.join(", ")}`);
 if (Object.values(roles.method).includes("degree")) {
-  console.log("  Not: 'degree' = hücre adları tanınamadı, ağ yapısına göre seçildi. Makaledeki adlarla doğrula (roles.ts).");
+  console.log("  Note: 'degree' = cell names were not recognised, picked by network structure. Check against the names in the paper (roles.ts).");
 }
 
 const trainDiffs = results.map((r) => r.training.meanDiffBps);
@@ -87,32 +87,32 @@ const hold = signFlipTest(holdDiffs);
 const flat = signFlipTest(holdAbs);
 const last = results.map((r) => r.generations[r.generations.length - 1]);
 const d = results[0].data;
-const pos = (xs: number[]) => `${xs.filter((x) => x > 0).length}/${replicates} tekrarda pozitif`;
+const pos = (xs: number[]) => `${xs.filter((x) => x > 0).length}/${replicates} replicates positive`;
 console.log(line);
-console.log(`1) Evrim işliyor mu? Eğitim (${d.trainFrom.slice(0, 10)} → ${d.holdoutFrom.slice(0, 10)})`);
-console.log(`   seçilim − kontrol: ort. ${Math.round(train.observed)} bps/gün, ${pos(trainDiffs)}, p = ${train.p.toFixed(4)}`);
+console.log(`1) Does evolution work? Training (${d.trainFrom.slice(0, 10)} → ${d.holdoutFrom.slice(0, 10)})`);
+console.log(`   selection − control: mean ${Math.round(train.observed)} bps/day, ${pos(trainDiffs)}, p = ${train.p.toFixed(4)}`);
 console.log(
-  `   son nesilde günlük işlem: seçilim ${(last.reduce((a, g) => a + g.selection.tradesMean, 0) / replicates).toFixed(1)}` +
-    `, kontrol ${(last.reduce((a, g) => a + g.control.tradesMean, 0) / replicates).toFixed(1)}` +
-    ` · pozisyonda geçen süre: seçilim %${Math.round((100 * last.reduce((a, g) => a + g.selection.exposure, 0)) / replicates)}` +
-    `, kontrol %${Math.round((100 * last.reduce((a, g) => a + g.control.exposure, 0)) / replicates)}`,
+  `   daily trades in the last generation: selection ${(last.reduce((a, g) => a + g.selection.tradesMean, 0) / replicates).toFixed(1)}` +
+    `, control ${(last.reduce((a, g) => a + g.control.tradesMean, 0) / replicates).toFixed(1)}` +
+    ` · time in position: selection ${Math.round((100 * last.reduce((a, g) => a + g.selection.exposure, 0)) / replicates)}%` +
+    `, control ${Math.round((100 * last.reduce((a, g) => a + g.control.exposure, 0)) / replicates)}%`,
 );
-console.log(`2) Piyasayı öğrendi mi? Görülmemiş hafta (${d.holdoutFrom.slice(0, 10)} → ${d.holdoutTo.slice(0, 10)})`);
-console.log(`   seçilim − kontrol    : ort. ${Math.round(hold.observed)} bps, ${pos(holdDiffs)}, p = ${hold.p.toFixed(4)}`);
-console.log(`   seçilim − hiç işlem  : ort. ${Math.round(flat.observed)} bps, ${pos(holdAbs)}, p = ${flat.p.toFixed(4)}`);
-console.log(`   (bağlam: aynı hafta al-tut ${results[0].holdout.buyHold} bps)`);
+console.log(`2) Did it learn the market? Unseen week (${d.holdoutFrom.slice(0, 10)} → ${d.holdoutTo.slice(0, 10)})`);
+console.log(`   selection − control     : mean ${Math.round(hold.observed)} bps, ${pos(holdDiffs)}, p = ${hold.p.toFixed(4)}`);
+console.log(`   selection − not trading : mean ${Math.round(flat.observed)} bps, ${pos(holdAbs)}, p = ${flat.p.toFixed(4)}`);
+console.log(`   (context: buy-and-hold over the same week ${results[0].holdout.buyHold} bps)`);
 const minP = 1 / 2 ** replicates;
-if (minP > ALPHA) console.log(`   Not: ${replicates} tekrarla ulaşılabilecek en küçük p = ${minP.toFixed(3)}; p ≤ ${ALPHA} için en az 6 tekrar gerekir.`);
+if (minP > ALPHA) console.log(`   Note: the smallest p reachable with ${replicates} replicates is ${minP.toFixed(3)}; p ≤ ${ALPHA} needs at least 6 replicates.`);
 
 const evolves = train.p <= ALPHA;
 const learns = hold.p <= ALPHA && flat.p <= ALPHA;
 console.log(line);
 console.log(
   learns
-    ? "Sonuç: H0 reddedildi. Seçilim, görülmemiş haftada hem kontrolü hem hiç işlem yapmamayı anlamlı ölçüde geçti."
+    ? "Result: H0 rejected. On the unseen week, selection significantly beat both control and not trading."
     : evolves
-      ? "Sonuç: Evrim işliyor ama piyasayı öğrendiği gösterilemedi (büyük olasılıkla maliyet ve riskten kaçınmayı öğrendi)."
-      : "Sonuç: H0 reddedilemedi. Seçilim ile kontrol arasında anlamlı fark gösterilemedi.",
+      ? "Result: evolution works, but market learning was not shown (most likely it learned to avoid costs and risk)."
+      : "Result: H0 not rejected. No significant difference between selection and control was shown.",
 );
 
 writeFileSync(
@@ -137,4 +137,4 @@ writeFileSync(
     2,
   ),
 );
-console.log(`Süre ${((Date.now() - t0) / 1000).toFixed(0)} sn · çıktı: ${outRoot}/summary.json ve r1..r${replicates}/`);
+console.log(`Time ${((Date.now() - t0) / 1000).toFixed(0)} s · output: ${outRoot}/summary.json and r1..r${replicates}/`);

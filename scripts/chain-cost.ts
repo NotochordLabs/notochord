@@ -29,7 +29,7 @@ for (let from = BigInt(manifest.deployBlock); from <= latest; from += STEP) {
 const rows = new Map<string, { calls: number; gas: bigint; fee: bigint; maxFee: bigint }>();
 for (const hash of hashes) {
   const [tx, receipt] = await Promise.all([client.getTransaction({ hash }), client.getTransactionReceipt({ hash })]);
-  const fn = tx.to ? (names.get(tx.input.slice(0, 10)) ?? "other") : "kontrat dağıtımı";
+  const fn = tx.to ? (names.get(tx.input.slice(0, 10)) ?? "other") : "contract deploy";
   const row = rows.get(fn) ?? { calls: 0, gas: 0n, fee: 0n, maxFee: 0n };
   const fee = receipt.gasUsed * receipt.effectiveGasPrice;
   if (fee > row.maxFee) row.maxFee = fee;
@@ -41,12 +41,12 @@ for (const hash of hashes) {
 
 const hype = (wei: bigint | number) => (Number(wei) / 1e18).toFixed(6);
 let spent = 0n;
-console.log("Zincirdeki işlemler (olay yaymayan kontratlar sayılmaz; gas, veri ücretini de içerir):");
+console.log("On-chain transactions (contracts that emit no events are not counted; gas includes the data fee):");
 for (const [fn, r] of [...rows].sort()) {
   spent += r.fee;
-  console.log(`  ${fn.padEnd(14)} ${String(r.calls).padStart(6)} işlem  ${String(r.gas / BigInt(r.calls)).padStart(11)} gas/işlem  ${hype(r.fee)} HYPE`);
+  console.log(`  ${fn.padEnd(14)} ${String(r.calls).padStart(6)} txs  ${String(r.gas / BigInt(r.calls)).padStart(11)} gas/tx  ${hype(r.fee)} HYPE`);
 }
-console.log(`  toplam ${hype(spent)} HYPE`);
+console.log(`  total ${hype(spent)} HYPE`);
 
 // Call counts from the full local rehearsal: 6 + 6 replicates, 100 generations, 28 unseen days.
 const PLAN: Record<string, number> = { commitGenesis: 12, recordGenesis: 12, open: 1200, recordThought: 28800, close: 1200, record: 1320, recordHoldout: 12 };
@@ -62,6 +62,6 @@ for (const [fn, calls] of Object.entries(PLAN)) {
     projected += Number(REHEARSAL_GAS[fn]) * calls * Number(await client.getGasPrice());
   }
 }
-console.log(`\nTam protokol tahmini, bu ücretlerle: ${(projected / 1e18).toFixed(3)} HYPE (kontrat dağıtımı hariç)`);
-if (missing.length) console.log(`Henüz gerçek ağda görülmeyip prova gas'ıyla sayılanlar: ${missing.join(", ")}`);
-console.log("Gas fiyatı değişirse bu rakam da değişir.");
+console.log(`\nFull protocol estimate at these fees: ${(projected / 1e18).toFixed(3)} HYPE (excluding contract deployment)`);
+if (missing.length) console.log(`Not yet seen on the real network, counted with rehearsal gas: ${missing.join(", ")}`);
+console.log("If the gas price changes, this figure changes too.");

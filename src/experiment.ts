@@ -102,7 +102,7 @@ export function runExperiment(
   const trainStart = holdoutStart - cfg.generations * H;
   if (trainStart < WARMUP) {
     const max = Math.floor((holdoutStart - WARMUP) / H);
-    throw new Error(`Veri ${cfg.generations} nesil için yetmiyor; en fazla ${max} nesil çalıştırılabilir (--generations ${max}).`);
+    throw new Error(`Not enough data for ${cfg.generations} generations; at most ${max} can run (--generations ${max}).`);
   }
 
   const ids = new IdCounter();

@@ -45,9 +45,9 @@ function clients(urls: string[], chainId: number, key: Hex, pollingInterval: num
 /** Real transactions need the key and an explicit statement of which chain is meant. */
 function liveKey(): Hex {
   const key = process.env.RUNNER_PRIVATE_KEY as Hex | undefined;
-  if (!key) throw new Error("RUNNER_PRIVATE_KEY tanımlı değil.");
+  if (!key) throw new Error("RUNNER_PRIVATE_KEY is not set.");
   if (process.env.NOTOCHORD_LIVE !== String(ELYSIUM_CHAIN_ID)) {
-    throw new Error(`Gerçek ağa yazmak için NOTOCHORD_LIVE=${ELYSIUM_CHAIN_ID} gerekir.`);
+    throw new Error(`Writing to the real network needs NOTOCHORD_LIVE=${ELYSIUM_CHAIN_ID}.`);
   }
   return key;
 }
@@ -75,7 +75,7 @@ async function waitForRpc(url: string) {
     }
     await new Promise((r) => setTimeout(r, 100));
   }
-  throw new Error("anvil başlamadı.");
+  throw new Error("anvil did not start.");
 }
 
 export async function replay() {
@@ -85,11 +85,11 @@ export async function replay() {
   const seed = arg("seed") ?? "replay-001";
   const coin = arg("coin") ?? "HYPE";
   const pricePath = join("data", `prices-${coin}-1h.json`);
-  if (!existsSync(pricePath)) throw new Error(`${pricePath} yok. Önce npm run fetch.`);
+  if (!existsSync(pricePath)) throw new Error(`${pricePath} is missing. Run npm run fetch first.`);
   const { candles } = JSON.parse(readFileSync(pricePath, "utf8")) as { candles: { t: number; c: number; v: number }[] };
   const totalHours = rules.generations * rules.hoursPerGeneration + rules.holdoutHours;
   const startIndex = candles.length - 1 - totalHours;
-  if (startIndex < 24) throw new Error("Veri bu kadar nesil için yetmiyor.");
+  if (startIndex < 24) throw new Error("Not enough data for this many generations.");
   const startMs = candles[startIndex].t;
 
   const port = num("port", 8599);
@@ -97,7 +97,7 @@ export async function replay() {
   const bin = process.env.ANVIL_BIN ?? "anvil";
   const anvil = spawn(bin, ["--port", String(port), "--silent", "--timestamp", String(startMs / 1000 - 7200), "--order", "fifo", "--prune-history"], { stdio: "ignore" });
   const anvilFailed = new Promise<never>((_, reject) =>
-    anvil.once("error", () => reject(new Error(`${bin} bulunamadı. Foundry kurulu mu?`))),
+    anvil.once("error", () => reject(new Error(`${bin} not found. Is Foundry installed?`))),
   );
   try {
     await Promise.race([waitForRpc(url), anvilFailed]);
@@ -140,18 +140,18 @@ export async function replay() {
       await publicClient.request({ method: "evm_mine" as never, params: [clock / 1000] as never });
       for (const rep of reps) while (await rep.step());
       const hour = (clock - startMs) / HOUR;
-      if (hour >= 0 && hour % 240 === 0) console.log(`  simüle saat ${hour}/${totalHours} (${((Date.now() - t0) / 1000).toFixed(0)} sn)`);
+      if (hour >= 0 && hour % 240 === 0) console.log(`  simulated hour ${hour}/${totalHours} (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
     }
 
     const report = formatResults(await readResults(publicClient, replicates.filter((r) => !r.wiring).map((r) => r.generation)), true);
     console.log(report);
-    console.log(`\nGas (toplam ${reps.length} tekrar, ${rules.generations} nesil; dağıtım ve işlem verisi ücreti hariç):`);
+    console.log(`\nGas (total for ${reps.length} replicates, ${rules.generations} generations; excluding deployment and calldata fees):`);
     let total = 0n;
     for (const [fn, row] of [...gas].sort()) {
       total += row.gas;
-      console.log(`  ${fn.padEnd(14)} ${String(row.calls).padStart(6)} işlem  ${row.gas} gas`);
+      console.log(`  ${fn.padEnd(14)} ${String(row.calls).padStart(6)} txs  ${row.gas} gas`);
     }
-    console.log(`  toplam ${total} gas · 0,1 gwei'de ${Number(total) * 1e8 / 1e18} HYPE`);
+    console.log(`  total ${total} gas · at 0.1 gwei ${Number(total) * 1e8 / 1e18} HYPE`);
     writeFileSync(join(dir, "report.txt"), report + "\n");
     return { report, total, publicClient };
   } finally {
@@ -162,7 +162,7 @@ export async function replay() {
 /* ---- live ---- */
 
 function liveCtx(manifest: Manifest): { ctx: Ctx; reps: Replicate[] } {
-  if (manifest.simulated) throw new Error("Bu kayıt simülasyon.");
+  if (manifest.simulated) throw new Error("This record is a simulation.");
   const { publicClient, wallet } = clients(rpcUrls(), manifest.chainId, liveKey(), 2000);
   const ctx: Ctx = {
     lab: makeLab(loadConnectome(join("data", "connectome"))),
@@ -181,14 +181,14 @@ function liveCtx(manifest: Manifest): { ctx: Ctx; reps: Replicate[] } {
 
 async function deployLive() {
   const name = arg("name");
-  if (!name) throw new Error("--name gerekli.");
-  if (existsSync(manifestPath(name))) throw new Error(`${name} zaten dağıtılmış.`);
+  if (!name) throw new Error("--name is required.");
+  if (existsSync(manifestPath(name))) throw new Error(`${name} is already deployed.`);
   const rules = rulesFromArgs();
   const count = num("replicates", 6);
   const shuffled = num("shuffled", 6);
   const protocol = loadProtocol();
   const problems = deploymentProblems({ name, rules, main: count, shuffled, coin: arg("coin") ?? protocol.market.coin, seed: arg("seed"), nodeVersion: process.version }, protocol);
-  if (problems.length) throw new Error(`Dağıtım durduruldu:\n  ${problems.join("\n  ")}`);
+  if (problems.length) throw new Error(`Deployment stopped:\n  ${problems.join("\n  ")}`);
   const { publicClient, wallet } = clients(rpcUrls(), ELYSIUM_CHAIN_ID, liveKey(), 2000);
   const lab = makeLab(loadConnectome(join("data", "connectome")));
   const hash = protocolHash();
@@ -198,35 +198,35 @@ async function deployLive() {
   const progressPath = join(dir, "deploy-progress.json");
   mkdirSync(dir, { recursive: true });
   const saved = existsSync(progressPath) ? (JSON.parse(readFileSync(progressPath, "utf8")) as { protocolHash: Hex; deployBlock: string; replicates: Manifest["replicates"]; verifier?: Address }) : null;
-  if (saved && saved.protocolHash !== hash) throw new Error(`Yarım kalan dağıtım başka bir kodla başlamış: ${progressPath}`);
+  if (saved && saved.protocolHash !== hash) throw new Error(`An unfinished deployment was started with different code: ${progressPath}`);
   const balance = await publicClient.getBalance({ address: wallet.account!.address });
-  console.error(`Cüzdan ${wallet.account!.address}, bakiye ${Number(balance) / 1e18} HYPE`);
+  console.error(`Wallet ${wallet.account!.address}, balance ${Number(balance) / 1e18} HYPE`);
   const deployBlock = saved?.deployBlock ?? String(await publicClient.getBlockNumber());
   const progress = { protocolHash: hash, deployBlock, replicates: saved?.replicates ?? [], verifier: saved?.verifier };
   const persist = () => writeFileSync(progressPath, JSON.stringify(progress, null, 2));
-  if (progress.replicates.length) console.error(`Devam ediliyor: ${progress.replicates.length} tekrar zaten dağıtılmış.`);
+  if (progress.replicates.length) console.error(`Resuming: ${progress.replicates.length} replicates already deployed.`);
   persist();
   const total = count + shuffled;
   progress.replicates = await deployReplicates(publicClient, wallet, total, rules, lab.layout.size, hash, progress.replicates, (done) => {
     progress.replicates = done;
     persist();
-    console.error(`Tekrar ${done.length}/${total} dağıtıldı.`);
+    console.error(`Replicate ${done.length}/${total} deployed.`);
   });
   progress.verifier ??= await deployThoughtVerifier(publicClient, wallet, lab);
   persist();
-  console.error("ThoughtVerifier dağıtıldı.");
+  console.error("ThoughtVerifier deployed.");
   // Fixed last, so a slow deployment cannot eat into the time left before the start.
   const startMs = (Math.floor(Date.now() / HOUR) + 2) * HOUR;
   const manifest: Manifest = { verifier: progress.verifier, name, chainId: ELYSIUM_CHAIN_ID, simulated: false, coin: arg("coin") ?? protocol.market.coin, seed: arg("seed") ?? (name.startsWith("test-") ? `experiment-177-chain-${name}` : protocol.seed), startMs, rules, protocolHash: hash, replicates: markShuffled(progress.replicates, count), deployBlock };
   writeFileSync(manifestPath(name), JSON.stringify(manifest, null, 2));
   rmSync(progressPath, { force: true });
   console.log(JSON.stringify(manifest, null, 2));
-  console.error(`Başlangıç: ${new Date(startMs).toISOString()}. Çalıştırıcı bu saatten ÖNCE başlatılmalı, yoksa dağıtım boşa gider.`);
+  console.error(`Start: ${new Date(startMs).toISOString()}. The runner must be started BEFORE this time, or the deployment is wasted.`);
 }
 
 async function runLive() {
   const name = arg("name");
-  if (!name) throw new Error("--name gerekli.");
+  if (!name) throw new Error("--name is required.");
   const manifest = JSON.parse(readFileSync(manifestPath(name), "utf8")) as Manifest;
   const { reps } = liveCtx(manifest);
   const heartbeat = join("runner", "state", name, "heartbeat");
@@ -237,7 +237,7 @@ async function runLive() {
         while (await rep.step());
       } catch (e) {
         // One failing replicate or RPC must not stop the others; the chain says where to resume.
-        console.error(`${new Date().toISOString()} tekrar ${rep.index}: ${(e as { shortMessage?: string }).shortMessage ?? (e as Error).message}`);
+        console.error(`${new Date().toISOString()} replicate ${rep.index}: ${(e as { shortMessage?: string }).shortMessage ?? (e as Error).message}`);
       }
     }
     await new Promise((r) => setTimeout(r, 60_000));
@@ -251,66 +251,66 @@ async function check() {
     try {
       console.log(`${label}: ${await fn()}`);
     } catch (e) {
-      console.log(`${label}: HATA ${(e as Error).message}`);
+      console.log(`${label}: ERROR ${(e as Error).message}`);
     }
   };
   for (const url of rpcUrls()) {
     await report(`RPC ${url}`, async () => {
       const client = createPublicClient({ transport: http(url) });
       const [id, price, block] = await Promise.all([client.getChainId(), client.getGasPrice(), client.getBlockNumber()]);
-      return `chain ${id}${id === ELYSIUM_CHAIN_ID ? " (beklenen)" : " (BEKLENMEYEN)"}, gas ${Number(price) / 1e9} gwei, blok ${block}`;
+      return `chain ${id}${id === ELYSIUM_CHAIN_ID ? " (expected)" : " (UNEXPECTED)"}, gas ${Number(price) / 1e9} gwei, block ${block}`;
     });
   }
   await report("drand", async () => {
     const res = await fetch(`https://api.drand.sh/${DRAND.chainHash}/info`);
     const info = (await res.json()) as { genesis_time: number; period: number };
     const ok = info.genesis_time === DRAND.genesisTime && info.period === DRAND.period;
-    return `başlangıç ${info.genesis_time}, periyot ${info.period} ${ok ? "(kodla aynı)" : "(KODLA FARKLI)"}`;
+    return `genesis ${info.genesis_time}, period ${info.period} ${ok ? "(matches the code)" : "(DIFFERS FROM THE CODE)"}`;
   });
-  await report("drand tur", async () => {
+  await report("drand round", async () => {
     const now = Date.now();
     const round = BigInt(Math.floor((now / 1000 - DRAND.genesisTime) / DRAND.period));
-    return `tur ${round}: ${await liveDrand.get(round, now)}`;
+    return `round ${round}: ${await liveDrand.get(round, now)}`;
   });
   await report("Hyperliquid", async () => {
     const view = await hyperliquidMarket("HYPE")(Date.now());
     const last = view.market.candles.at(-1)!;
-    return `${view.market.candles.length} kapalı saat, son ${new Date(last.t).toISOString()} kapanış ${last.c}`;
+    return `${view.market.candles.length} closed hours, last ${new Date(last.t).toISOString()} close ${last.c}`;
   });
 }
 
 async function status() {
   const name = arg("name");
-  if (!name) throw new Error("--name gerekli.");
+  if (!name) throw new Error("--name is required.");
   const manifest = JSON.parse(readFileSync(manifestPath(name), "utf8")) as Manifest;
   const client = createPublicClient({ transport: fallback(rpcUrls().map((u) => http(u))) }) as PublicClient;
   // The comparison arm is reported on its own: it never enters the main test.
   console.log(formatResults(await readResults(client, manifest.replicates.filter((r) => !r.wiring).map((r) => r.generation)), manifest.simulated));
   const arm = manifest.replicates.filter((r) => r.wiring);
-  if (arm.length) console.log("\nKarıştırılmış harita:\n" + formatResults(await readResults(client, arm.map((r) => r.generation)), manifest.simulated));
+  if (arm.length) console.log("\nShuffled wiring:\n" + formatResults(await readResults(client, arm.map((r) => r.generation)), manifest.simulated));
 }
 
 /** Anyone can run this: needs only the published manifest, an RPC, and public data. */
 async function verify() {
   const path = arg("manifest") ?? (arg("name") ? manifestPath(arg("name")!) : null);
-  if (!path) throw new Error("--manifest dosya ya da --name gerekli.");
+  if (!path) throw new Error("--manifest file or --name is required.");
   const manifest = JSON.parse(readFileSync(path, "utf8")) as Manifest;
-  if (manifest.simulated) console.log("!! Bu kayıt SİMÜLASYON. Sonuçları deney sonucu değildir. !!");
+  if (manifest.simulated) console.log("!! This record is a SIMULATION. Its results are not experiment results. !!");
   const client = createPublicClient({ transport: fallback(rpcUrls().map((u) => http(u))) }) as PublicClient;
   const prices = arg("prices");
   const source = prices ? replayMarket((JSON.parse(readFileSync(prices, "utf8")) as { candles: Parameters<typeof replayMarket>[0] }).candles, prices) : hyperliquidMarket(manifest.coin);
   const lab = makeLab(loadConnectome(join("data", "connectome")));
   const r = await verifyRun(client, manifest, lab, manifest.simulated ? simulatedDrand : liveDrand, source, Date.now(), (s) => console.log(s));
-  console.log(`Denetlenen: ${r.checked.thoughts} düşünce, ${r.checked.generations} nesil, ${r.checked.genomes} genom özeti, ${r.checked.fossils} fosil, ${r.checked.holdouts} görülmemiş dönem, ${r.checked.drand} drand değeri, ${r.checked.evm} EVM yeniden hesabı`);
+  console.log(`Checked: ${r.checked.thoughts} thoughts, ${r.checked.generations} generations, ${r.checked.genomes} genome hashes, ${r.checked.fossils} fossils, ${r.checked.holdouts} unseen periods, ${r.checked.drand} drand values, ${r.checked.evm} EVM recomputations`);
   if (r.problems.length) {
-    console.log(`UYUŞMAZLIK (${r.problems.length}):\n` + r.problems.map((p) => `  ${p}`).join("\n"));
+    console.log(`MISMATCH (${r.problems.length}):\n` + r.problems.map((p) => `  ${p}`).join("\n"));
     process.exitCode = 1;
-  } else console.log("Sonuç: zincirdeki kayıtlar açık girdilerden aynen yeniden üretildi.");
+  } else console.log("Result: the on-chain records were reproduced exactly from public inputs.");
 }
 
 async function healthCmd() {
   const name = arg("name");
-  if (!name) throw new Error("--name gerekli.");
+  if (!name) throw new Error("--name is required.");
   const manifest = JSON.parse(readFileSync(manifestPath(name), "utf8")) as Manifest;
   const client = createPublicClient({ transport: fallback(rpcUrls().map((u) => http(u))) }) as PublicClient;
   const out = await health(client, manifest, Date.now(), join("runner", "state", name, "heartbeat"), process.env.MIN_BALANCE_HYPE ? Number(process.env.MIN_BALANCE_HYPE) : 0.05);
@@ -327,13 +327,13 @@ const commands: Record<string, () => Promise<unknown>> = { replay, check, deploy
 if (process.argv[1]?.endsWith("cli.ts")) {
   const command = process.argv[2] ?? "";
   if (!commands[command]) {
-    console.error("Kullanım: replay | check | deploy --name X | run --name X | status --name X | verify --name X | health --name X");
+    console.error("Usage: replay | check | deploy --name X | run --name X | status --name X | verify --name X | health --name X");
     process.exit(1);
   }
   commands[command]().then(
     () => process.exit(0),
     (e) => {
-      console.error(`Hata: ${(e as { shortMessage?: string }).shortMessage ?? (e as Error).message}`);
+      console.error(`Error: ${(e as { shortMessage?: string }).shortMessage ?? (e as Error).message}`);
       process.exit(1);
     },
   );

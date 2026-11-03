@@ -54,7 +54,7 @@ export async function waitForReceipt(client: PublicClient, hash: Hex, timeoutMs 
     } catch (e) {
       if (!(e instanceof TransactionReceiptNotFoundError)) throw e;
     }
-    if (Date.now() > deadline) throw new Error(`İşlem onaylanmadı: ${hash}`);
+    if (Date.now() > deadline) throw new Error(`Transaction not confirmed: ${hash}`);
     await new Promise((r) => setTimeout(r, Math.min(client.pollingInterval, 2000)));
   }
 }
@@ -74,7 +74,7 @@ export async function deployReplicates(
   const deploy = async (abi: Abi, bytecode: string, args: unknown[]) => {
     const tx = await wallet.deployContract({ abi, bytecode: bytecode as Hex, args, account, chain: wallet.chain });
     const receipt = await waitForReceipt(publicClient, tx);
-    if (receipt.status !== "success" || !receipt.contractAddress) throw new Error(`Dağıtım başarısız: ${tx}`);
+    if (receipt.status !== "success" || !receipt.contractAddress) throw new Error(`Deployment failed: ${tx}`);
     return receipt.contractAddress;
   };
   const out: Manifest["replicates"] = [...done];

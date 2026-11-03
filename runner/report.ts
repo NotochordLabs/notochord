@@ -34,20 +34,20 @@ export async function readResults(client: PublicClient, generations: Address[]):
 
 export function formatResults(r: ChainResult, simulated: boolean): string {
   const row = (label: string, xs: number[]) => {
-    if (!xs.length) return `${label}: henüz yok`;
+    if (!xs.length) return `${label}: none yet`;
     const t = signFlipTest(xs);
-    return `${label}: ort. ${Math.round(t.observed)} bps, ${xs.filter((x) => x > 0).length}/${xs.length} pozitif, p = ${t.p.toFixed(4)}`;
+    return `${label}: mean ${Math.round(t.observed)} bps, ${xs.filter((x) => x > 0).length}/${xs.length} positive, p = ${t.p.toFixed(4)}`;
   };
   const passes = (xs: number[]) => xs.length > 0 && signFlipTest(xs).p <= ALPHA;
   const lines = [
-    simulated ? "!! SİMÜLASYON: geçmiş veri ve sahte drand. Bu sayılar deney sonucu değildir. !!" : "Zincirden okunan sonuçlar",
-    `Kapanan nesil (tekrar başına): ${r.generations}`,
-    row("Eğitim: seçilim − kontrol", r.trainingDiffs),
-    row("Görülmemiş dönem: seçilim − kontrol", r.holdoutVsControl),
-    row("Görülmemiş dönem: seçilim − hiç işlem", r.holdoutVsFlat),
+    simulated ? "!! SIMULATION: historical data and a fake drand. These numbers are not experiment results. !!" : "Results read from the chain",
+    `Closed generations (per replicate): ${r.generations}`,
+    row("Training: selection − control", r.trainingDiffs),
+    row("Unseen period: selection − control", r.holdoutVsControl),
+    row("Unseen period: selection − not trading", r.holdoutVsFlat),
     passes(r.holdoutVsControl) && passes(r.holdoutVsFlat)
-      ? `Sonuç: H0 reddedildi (p ≤ ${ALPHA}).`
-      : `Sonuç: H0 reddedilemedi (eşik p ≤ ${ALPHA}).`,
+      ? `Result: H0 rejected (p ≤ ${ALPHA}).`
+      : `Result: H0 not rejected (threshold p ≤ ${ALPHA}).`,
   ];
   return lines.join("\n");
 }

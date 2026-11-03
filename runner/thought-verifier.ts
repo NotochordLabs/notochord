@@ -24,7 +24,7 @@ export async function deployThoughtVerifier(client: PublicClient, wallet: Wallet
     chain: wallet.chain,
   });
   const receipt = await waitForReceipt(client, hash);
-  if (receipt.status !== "success" || !receipt.contractAddress) throw new Error(`ThoughtVerifier dağıtılamadı: ${hash}`);
+  if (receipt.status !== "success" || !receipt.contractAddress) throw new Error(`ThoughtVerifier could not be deployed: ${hash}`);
   return receipt.contractAddress;
 }
 

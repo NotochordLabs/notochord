@@ -73,7 +73,7 @@ const cells = c.names.map((name, i) => {
 const edges: number[] = [];
 for (let e = 0; e < c.edgeSrc.length; e++) edges.push(c.edgeSrc[e], c.edgeDst[e]);
 
-/* ---- three real thoughts of the unseen week's top specimen, tekrar 1 ---- */
+/* ---- three real thoughts of the unseen week's top specimen, replicate 1 ---- */
 const final = JSON.parse(readFileSync(`${root}/r1/fossils/gen-099.json`, "utf8"));
 const bestId: number = results[0].holdout.bestSpecimen.id;
 const best = final.selection.find((s: { id: number }) => s.id === bestId);
@@ -131,7 +131,7 @@ while (stack.length) {
   if (l.parents) stack.push(...l.parents);
 }
 
-/* ---- the plate: each fossil's population, tekrar 1 ---- */
+/* ---- the plate: each fossil's population, replicate 1 ---- */
 const plates = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99].map((g) => {
   const f = JSON.parse(readFileSync(`${root}/r1/fossils/gen-${String(g).padStart(3, "0")}.json`, "utf8"));
   const row = (s: { id: number; fitness: number }) => {
@@ -195,5 +195,5 @@ mkdirSync("site/src/data", { recursive: true });
 writeFileSync("site/src/data/experiment.json", JSON.stringify(out));
 console.log(
   `OK: ${cells.length} cells, ${edges.length / 2} edges, ancestors ${seen.size}, ` +
-    thoughts.map((t) => `${t.label}: r1=${t.r1} karar=${t.decision} ateş=${t.fired}`).join(" | "),
+    thoughts.map((t) => `${t.label}: r1=${t.r1} decision=${t.decision} fired=${t.fired}`).join(" | "),
 );

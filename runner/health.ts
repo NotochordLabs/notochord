@@ -33,12 +33,12 @@ export async function health(client: PublicClient, m: Manifest, nowMs: number, h
     const done = phase === "Finished" ? m.rules.generations * m.rules.hoursPerGeneration : generation * m.rules.hoursPerGeneration + (phase === "Open" ? hoursRecorded : 0);
     const due = Math.min(Math.floor((nowMs - m.startMs) / HOUR), m.rules.generations * m.rules.hoursPerGeneration);
     const hoursBehind = Math.max(0, due - done);
-    if (hoursBehind > GRACE_HOURS) problems.push(`tekrar ${rep.index} ${hoursBehind} saat geride`);
+    if (hoursBehind > GRACE_HOURS) problems.push(`replicate ${rep.index} is ${hoursBehind} hours behind`);
     replicates.push({ index: rep.index, phase, generation, hoursRecorded, hoursBehind });
   }
   const balanceHype = Number(await client.getBalance({ address: runner! })) / 1e18;
-  if (balanceHype < minBalance) problems.push(`cüzdan bakiyesi düşük: ${balanceHype} HYPE`);
+  if (balanceHype < minBalance) problems.push(`wallet balance is low: ${balanceHype} HYPE`);
   const heartbeat = existsSync(heartbeatPath) ? readFileSync(heartbeatPath, "utf8") : null;
-  if (heartbeat && nowMs - Date.parse(heartbeat) > 10 * 60_000) problems.push(`çalıştırıcı ${heartbeat} tarihinden beri sinyal vermiyor`);
+  if (heartbeat && nowMs - Date.parse(heartbeat) > 10 * 60_000) problems.push(`no heartbeat from the runner since ${heartbeat}`);
   return { checkedAt: new Date(nowMs).toISOString(), simulated: m.simulated, runner: runner!, balanceHype, heartbeat, replicates, problems };
 }

@@ -126,7 +126,7 @@ export class Replicate {
 
   private need(view: MarketView, ms: number): number {
     const i = view.indexOf(ms);
-    if (i === null) throw new Error(`Mum eksik: ${new Date(ms).toISOString()}`);
+    if (i === null) throw new Error(`Candle missing: ${new Date(ms).toISOString()}`);
     return i;
   }
 
@@ -136,7 +136,7 @@ export class Replicate {
     const phase = Number(await this.read<number>("phase")) as Phase;
 
     if (phase === Phase.AwaitingGenesisCommit) {
-      if (this.ctx.startMs <= now()) throw new Error("Başlangıç zamanı geçmiş: yeni bir startMs ile dağıt.");
+      if (this.ctx.startMs <= now()) throw new Error("Start time has passed: deploy with a new startMs.");
       await this.tx("commitGenesis", [roundAt(this.ctx.startMs)]);
       return true;
     }
@@ -214,14 +214,14 @@ export class Replicate {
   /** Catches up if we stopped between a confirmed close and the next save. */
   private async reconcile() {
     const chainGeneration = Number(await this.read<number>("generation"));
-    if (!this.population) throw new Error(`Tekrar ${this.index}: durum dosyası yok (${this.statePath}).`);
+    if (!this.population) throw new Error(`Replicate ${this.index}: no state file (${this.statePath}).`);
     if (this.pending && this.pending.generation === chainGeneration) {
       this.population = this.pending;
       this.pending = null;
       this.save();
     }
     if (this.population.generation !== chainGeneration) {
-      throw new Error(`Tekrar ${this.index}: yerel nesil ${this.population.generation}, zincir ${chainGeneration}.`);
+      throw new Error(`Replicate ${this.index}: local generation ${this.population.generation}, chain ${chainGeneration}.`);
     }
   }
 
@@ -229,7 +229,7 @@ export class Replicate {
   private async checkAgainstChain(p: Population) {
     const same = (a: readonly number[], b: { id: number }[]) => a.length === b.length && a.every((x, i) => Number(x) === b[i].id);
     if (!same(await this.read<number[]>("selection"), p.selection) || !same(await this.read<number[]>("control"), p.control)) {
-      throw new Error(`Tekrar ${this.index}: popülasyon zincirle uyuşmuyor, durduruldu.`);
+      throw new Error(`Replicate ${this.index}: population does not match the chain, stopped.`);
     }
   }
 

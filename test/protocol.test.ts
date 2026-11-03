@@ -21,16 +21,16 @@ test("the protocol file and the code state the same rules", () => {
 
 test("an unlocked protocol cannot be deployed as the experiment", () => {
   assert.equal(p.status === LOCKED, false, "update this test when the protocol is locked");
-  assert.match(deploymentProblems(full, p).join(), /kilitli değil/);
+  assert.match(deploymentProblems(full, p).join(), /not locked/);
 });
 
 test("a locked deployment must match the protocol exactly", () => {
   const locked = { ...p, status: LOCKED };
   assert.deepEqual(deploymentProblems(full, locked), []);
-  assert.match(deploymentProblems({ ...full, main: 5 }, locked).join(), /Ana tekrar/);
-  assert.match(deploymentProblems({ ...full, rules: { ...PROTOCOL_RULES, holdoutHours: 168 } }, locked).join(), /Görülmemiş dönem/);
-  assert.match(deploymentProblems({ ...full, coin: "BTC" }, locked).join(), /Piyasa/);
-  assert.match(deploymentProblems({ ...full, seed: "another" }, locked).join(), /Tohum/);
+  assert.match(deploymentProblems({ ...full, main: 5 }, locked).join(), /Main replicates/);
+  assert.match(deploymentProblems({ ...full, rules: { ...PROTOCOL_RULES, holdoutHours: 168 } }, locked).join(), /Unseen period/);
+  assert.match(deploymentProblems({ ...full, coin: "BTC" }, locked).join(), /Market/);
+  assert.match(deploymentProblems({ ...full, seed: "another" }, locked).join(), /Seed/);
 });
 
 test("test deployments may be small but still need the pinned Node", () => {

@@ -38,20 +38,20 @@ export interface DeploymentPlan {
  */
 export function deploymentProblems(plan: DeploymentPlan, p: Protocol): string[] {
   const out: string[] = [];
-  if (plan.nodeVersion !== `v${p.node}`) out.push(`Node ${p.node} gerekli, bu makinede ${plan.nodeVersion}.`);
+  if (plan.nodeVersion !== `v${p.node}`) out.push(`Node ${p.node} is required, this machine has ${plan.nodeVersion}.`);
   if (plan.name.startsWith("test-")) return out;
-  if (p.status !== LOCKED) out.push(`Protokol kilitli değil (durum: "${p.status}"). Deneme için adı "test-" ile başlat.`);
+  if (p.status !== LOCKED) out.push(`Protocol is not locked (status: "${p.status}"). For a trial, start the name with "test-".`);
   const same = (label: string, got: unknown, want: unknown) => {
-    if (got !== want) out.push(`${label}: ${got}, protokolde ${want}.`);
+    if (got !== want) out.push(`${label}: ${got}, protocol says ${want}.`);
   };
-  same("Seçilim", plan.rules.selectionSize, p.populations.selection);
-  same("Kontrol", plan.rules.controlSize, p.populations.control);
-  same("Nesil", plan.rules.generations, p.generations);
-  same("Nesil saati", plan.rules.hoursPerGeneration, p.hoursPerGeneration);
-  same("Görülmemiş dönem", plan.rules.holdoutHours, p.holdoutHours);
-  same("Ana tekrar", plan.main, p.replicates.main);
-  same("Karıştırılmış tekrar", plan.shuffled, p.replicates.shuffledWiring);
-  same("Piyasa", plan.coin, p.market.coin);
-  if (plan.seed !== undefined) same("Tohum", plan.seed, p.seed);
+  same("Selection", plan.rules.selectionSize, p.populations.selection);
+  same("Control", plan.rules.controlSize, p.populations.control);
+  same("Generations", plan.rules.generations, p.generations);
+  same("Hours per generation", plan.rules.hoursPerGeneration, p.hoursPerGeneration);
+  same("Unseen period", plan.rules.holdoutHours, p.holdoutHours);
+  same("Main replicates", plan.main, p.replicates.main);
+  same("Shuffled replicates", plan.shuffled, p.replicates.shuffledWiring);
+  same("Market", plan.coin, p.market.coin);
+  if (plan.seed !== undefined) same("Seed", plan.seed, p.seed);
   return out;
 }

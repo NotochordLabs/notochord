@@ -58,7 +58,7 @@ function makeView(candles: Candle[], source: string, nowMs: number): MarketView 
   const closed = candles.filter((k) => k.t + HOUR <= nowMs).sort((a, b) => a.t - b.t);
   for (let i = 1; i < closed.length; i++) {
     if (closed[i].t - closed[i - 1].t !== HOUR) {
-      throw new Error(`Saatlik veride boşluk: ${new Date(closed[i - 1].t).toISOString()}`);
+      throw new Error(`Gap in hourly data: ${new Date(closed[i - 1].t).toISOString()}`);
     }
   }
   const t0 = closed.length ? closed[0].t : 0;

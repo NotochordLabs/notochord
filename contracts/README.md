@@ -1,29 +1,29 @@
-# Notochord kontratları
+# Notochord contracts
 
-Foundry projesi. Henüz hiçbir ağa dağıtılmadı.
+A Foundry project. Not deployed to any network yet.
 
-| Kontrat | Görevi |
+| Contract | Role |
 | --- | --- |
-| `Generation` | Bir tekrarı kaydeder: adım sırası, drand taahhüdü, kararlar, uygunluk, seçilim ve yavrular |
-| `Specimen` | Her örneğin kaydı (genom özeti, ebeveynler, doğum, eleme); `Generation` tarafından oluşturulur. Sahiplenme yoktur |
-| `Fossil` | Her 10 nesilde ve son nesilde tam genomları hash kontrolüyle saklar |
+| `Generation` | Records one replicate: step order, drand commitment, decisions, fitness, selection and offspring |
+| `Specimen` | A record per specimen (genome hash, parents, birth, elimination); created by `Generation`. No ownership |
+| `Fossil` | Stores full genomes every 10 generations and at the last generation, checked against their hash |
 
-## Kontrat neyi garanti eder?
+## What does the contract guarantee?
 
-Zincirde zorlanır: adım sırası, popülasyon boyutları, seçilimin en iyi yarıyı tutması, ebeveyn düzeni, drand turunun taahhüt anında gelecekte olması, fosil genomun kayıtlı SHA-256 ile eşleşmesi.
+Enforced on chain: step order, population sizes, that selection keeps the better half, parent order, that the drand round is in the future when it is committed, and that each fossil genome matches its recorded SHA-256.
 
-Henüz çalıştırıcıya güvenilir (zincir dışında herkes açık simülatörle kontrol edebilir): uygunluk değerleri, kararlar, genom özetleri, drand değerinin kendisi ve kontrolde elenenler. Bunları zincir üstünde denetleyecek Verifier 2. aşamadadır.
+Still trusted to the runner (anyone can check it off chain with the open simulator): fitness values, decisions, genome hashes, the drand value itself, and who is eliminated in the control group. The Verifier that will check these on chain is in phase 2.
 
-Her dağıtım bir tekrardır. Protokolün istatistiği için en az 6 tekrar, yani 6 ayrı `Generation` + `Fossil` dağıtımı gerekir.
+Each deployment is one replicate. The protocol's statistics need at least 6 replicates, so 6 separate `Generation` + `Fossil` deployments.
 
-## Çalıştırma
+## Running
 
 ```bash
-curl -L https://foundry.paradigm.xyz | bash && foundryup   # bir kez
+curl -L https://foundry.paradigm.xyz | bash && foundryup   # once
 cd contracts
 forge test
 ```
 
-`test/fixtures/r1-gen0-10.json`, simülatörün tekrar 1 çalıştırmasının ilk 10 neslidir. Yeniden üretmek için proje kökünde, fosiller varken: `npx tsx scripts/export-chain-fixture.ts`.
+`test/fixtures/r1-gen0-10.json` holds the first 10 generations of the simulator's replicate 1. To regenerate it, from the project root with the fossils present: `npx tsx scripts/export-chain-fixture.ts`.
 
-`lib/` içinde forge-std ve OpenZeppelin Contracts 5.6.1 kopyaları bulunur.
+`lib/` contains copies of forge-std and OpenZeppelin Contracts 5.6.1.

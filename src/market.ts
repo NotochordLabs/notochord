@@ -48,13 +48,13 @@ export function buildMarket(candles: Candle[], source: string, synthetic: boolea
 
 export function loadMarket(path: string): Market {
   if (!existsSync(path)) {
-    throw new Error(`Fiyat verisi bulunamadı (${path}). Önce "npm run fetch:prices" çalıştır ya da --synthetic kullan.`);
+    throw new Error(`Price data not found (${path}). Run "npm run fetch:prices" first, or use --synthetic.`);
   }
   const raw = JSON.parse(readFileSync(path, "utf8")) as { coin: string; interval: string; candles: Candle[] };
   const candles = raw.candles.slice().sort((a, b) => a.t - b.t);
   for (let i = 1; i < candles.length; i++) {
     if (candles[i].t - candles[i - 1].t !== 3600_000) {
-      console.warn(`Uyarı: ${new Date(candles[i - 1].t).toISOString()} sonrasında saatlik veride boşluk var.`);
+      console.warn(`Warning: gap in hourly data after ${new Date(candles[i - 1].t).toISOString()}.`);
       break;
     }
   }

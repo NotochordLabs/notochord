@@ -7,7 +7,7 @@ import {Fossil} from "../src/Fossil.sol";
 import {Generation} from "../src/Generation.sol";
 import {Specimen} from "../src/Specimen.sol";
 
-/// @notice Replays 10 real generations from the simulator (tekrar 1). The contract
+/// @notice Replays 10 real generations from the simulator (replicate 1). The contract
 /// computes selection itself, so it must reach the populations of the saved fossil.
 /// Regenerate the fixture with scripts/export-chain-fixture.ts.
 contract SimulatorReplayTest is Test {

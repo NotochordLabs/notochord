@@ -60,14 +60,14 @@ test("the verifier accepts an honest run and catches altered inputs", { skip: !h
 
     const altered = candles.map((k: { t: number; c: number; v: number }) => (k.t === startMs + 5 * HOUR ? { ...k, c: k.c * 1.01 } : k));
     const wrongMarket = await verifyRun(publicClient, manifest, lab, simulatedDrand, replayMarket(altered, "test"), now);
-    assert.match(wrongMarket.problems.join(), /piyasa girdisi/);
+    assert.match(wrongMarket.problems.join(), /market input/);
 
     const fakeBeacon: Drand = { get: async () => `0x${"ab".repeat(32)}` };
     const wrongDrand = await verifyRun(publicClient, manifest, lab, fakeBeacon, source, now);
     assert.match(wrongDrand.problems.join(), /drand/);
 
     const wrongWiring = await verifyRun(publicClient, { ...manifest, protocolHash: `0x${"11".repeat(32)}` }, lab, simulatedDrand, source, now);
-    assert.match(wrongWiring.problems.join(), /protokol özeti/);
+    assert.match(wrongWiring.problems.join(), /protocol hash/);
   } finally {
     anvil.kill();
   }

@@ -75,7 +75,7 @@ export function loadConnectome(dir: string): Connectome {
   const edgesPath = join(dir, "edges.csv");
   if (!existsSync(nodesPath) || !existsSync(edgesPath)) {
     throw new Error(
-      `Bağlantı haritası bulunamadı (${dir}). Önce "npm run fetch:connectome" çalıştır ya da --synthetic kullan.`,
+      `Wiring not found (${dir}). Run "npm run fetch:connectome" first, or use --synthetic.`,
     );
   }
 
