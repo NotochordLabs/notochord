@@ -1,0 +1,54 @@
+{
+ "markets": 8,
+ "rows": [
+  {
+   "pct": 50,
+   "six": 0,
+   "twelve": 0,
+   "eighteen": 0,
+   "six28": 0,
+   "eighteen28": 0
+  },
+  {
+   "pct": 55,
+   "six": 0,
+   "twelve": 0,
+   "eighteen": 0,
+   "six28": 0,
+   "eighteen28": 0
+  },
+  {
+   "pct": 60,
+   "six": 0,
+   "twelve": 0,
+   "eighteen": 1,
+   "six28": 0,
+   "eighteen28": 1
+  },
+  {
+   "pct": 70,
+   "six": 6,
+   "twelve": 7,
+   "eighteen": 7,
+   "six28": 6,
+   "eighteen28": 8
+  }
+ ],
+ "arm": [
+  {
+   "pct": 50,
+   "realMinusShuffled": 198,
+   "marketsAhead": 2
+  },
+  {
+   "pct": 60,
+   "realMinusShuffled": 371,
+   "marketsAhead": 3
+  },
+  {
+   "pct": 70,
+   "realMinusShuffled": -1457,
+   "marketsAhead": 0
+  }
+ ]
+}

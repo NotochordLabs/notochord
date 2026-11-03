@@ -1,0 +1,8 @@
+[Unit]
+Description=Notochord health check for %i
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/notochord
+EnvironmentFile=/etc/notochord.env
+ExecStart=/usr/bin/npx tsx runner/cli.ts health --name %i

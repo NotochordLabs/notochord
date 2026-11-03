@@ -1,0 +1,34 @@
+{
+  "name": "notochord",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Experiment 177: can a Ciona larva brain learn the market through natural selection?",
+  "type": "module",
+  "scripts": {
+    "fetch:prices": "tsx scripts/fetch-prices.ts",
+    "fetch": "npm run fetch:prices",
+    "sim": "tsx src/cli.ts",
+    "sim:synthetic": "tsx src/cli.ts --synthetic",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "runner:replay": "tsx runner/cli.ts replay",
+    "runner:check": "tsx runner/cli.ts check",
+    "runner:deploy": "tsx runner/cli.ts deploy",
+    "runner:run": "tsx runner/cli.ts run",
+    "runner:status": "tsx runner/cli.ts status",
+    "runner:verify": "tsx runner/cli.ts verify",
+    "runner:health": "tsx runner/cli.ts health"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2",
+    "viem": "^2.57.14"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

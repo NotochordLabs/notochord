@@ -1,0 +1,217 @@
+wiring_name,paper_id,rule,paper_type,paper_side,paper_pre,paper_post,status
+pns1,,,,,,,unmatched
+pns10,,,,,,,unmatched
+pns11,,,,,,,unmatched
+pns12,,,,,,,unmatched
+pns13,,,,,,,unmatched
+pns3,,,,,,,unmatched
+pns4,,,,,,,unmatched
+pns5,,,,,,,unmatched
+pns6,,,,,,,unmatched
+pns7,,,,,,,unmatched
+pns9,,,,,,,unmatched
+ATEN1,,,,,,,unmatched
+ATEN2,,,,,,,unmatched
+ATEN3,,,,,,,unmatched
+ATEN4,,,,,,,unmatched
+pna,,,,,,,unmatched
+pnb,,,,,,,unmatched
+pnc,,,,,,,unmatched
+pnf,,,,,,,unmatched
+pnh,,,,,,,unmatched
+pnu,,,,,,,unmatched
+pnw,,,,,,,unmatched
+pnx,,,,,,,unmatched
+coronet1,coronet 1,same name,Coronet,M,12,3,matched
+coronet10,coronet 10,same name,Coronet,L,9,-,matched
+coronet11,coronet 11,same name,Coronet,L,5,3,matched
+coronet12,coronet 12,same name,Coronet,M,5,-,matched
+coronet16,coronet 16,same name,Coronet,M,9,4,matched
+coronet3,coronet 3,same name,Coronet,L,9,7,matched
+coronet4,coronet 4,same name,Coronet,L,12,5,matched
+coronet5,coronet 5,same name,Coronet,L,6,-,matched
+coronet6,coronet 6,same name,Coronet,L,6,3,matched
+coronet7,coronet 7,same name,Coronet,L,7,1,matched
+coronet8,coronet 8,same name,Coronet,L,10,6,matched
+coronet9,coronet 9,same name,Coronet,L,4,3,matched
+pr1,pr1,same name,PR (I),R,24,13,matched
+pr10,pr10,same name,PR (I),R,8,20,matched
+pr11,pr11,same name,PR (I),R,18,23,matched
+pr12,pr12,same name,PR (I),R,31,12,matched
+pr13,pr13,same name,PR (I),R,21,17,matched
+pr14,pr14,same name,PR (I),R,2,5,matched
+pr15,pr15,same name,PR (I),R,47,24,matched
+pr16,pr16,same name,PR (I),R,14,22,matched
+pr17,pr17,same name,PR (I),R,19,20,matched
+pr18,pr18,same name,PR (I),R,8,11,matched
+pr19,pr19,same name,PR (I),R,35,23,matched
+pr2,pr2,same name,PR (I),R,4,10,matched
+pr20,pr20,same name,PR (I),R,35,33,matched
+pr21,pr21,same name,PR (I),R,14,21,matched
+pr22,pr22,same name,PR (I),R,18,20,matched
+pr23,pr23,same name,PR (I),R,21,14,matched
+pr3,pr3,same name,PR (I),R,17,32,matched
+pr4,pr4,same name,PR (I),R,20,17,matched
+pr5,pr5,same name,PR (I),R,12,1,matched
+pr6,pr6,same name,PR (I),R,16,25,matched
+pr7,pr7,same name,PR (I),R,15,14,matched
+pr8,pr8,same name,PR (I),R,22,9,matched
+pr9,pr9,same name,PR (I),R,13,26,matched
+pra,pr-a,same name,PR (II),RV,5,7,matched
+prb,pr-b,same name,PR (II),RV,6,8,matched
+prc,pr-c,same name,PR (II),RV,5,29,matched
+prd,pr-d,same name,PR (II),RV,6,10,matched
+pre,pr-e,same name,PR (II),RV,12,8,matched
+prf,pr-f,same name,PR (II),RV,9,18,matched
+prg,pr-g,same name,PR (II),RV,2,1,matched
+lens6,,,,,,,unmatched
+101,prIII-101,id = prIII id,PR (III),VR,5,6,matched
+110,prIII-110,id = prIII id,PR (III),VR,5,3,matched
+114,prIII-114,id = prIII id,PR (III),VR,2,5,matched
+107,107 (Ep),same name,Ambiguous,M,0,3,matched
+Ant1,Antenna 1,Ant = Antenna,Antenna,VM,190,31,matched
+Ant2,Antenna 2,Ant = Antenna,Antenna,VR,73,32,matched
+4,4,same name,PNIN,DM,54,30,matched
+6,6,same name,PNIN,DM,21,9,matched
+20,20,same name,PNIN,DM,11,23,matched
+25,,,,,,,unmatched
+29,29,same name,PNIN,DL,17,21,matched
+30,30,same name,PNIN,DL,46,19,matched
+61,61,same name,PNIN,DL,17,21,matched
+160,160,same name,PBV PNIN,DL,15,34,matched
+162,162,same name,PBV PNIN,DL,18,23,matched
+163,163,same name,PBV PNIN,DM,12,24,matched
+164,164,same name,PBV PNIN,DR,11,27,matched
+177,177,same name,Ambiguous,L,3,11,matched
+vacIN1,vacIN1,same name,vacIN,R,4,2,matched
+trIN,trIN,same name,trIN,DR,52,77,matched
+1,1,same name,cor-ass BVIN,L,2,21,matched
+2,2,same name,cor-ass BVIN,L,12,14,matched
+15,15,same name,cor-ass BVIN,VL,8,12,matched
+23,23,same name,cor-ass BVIN,L,7,20,matched
+38,38,same name,cor-ass BVIN,L,11,19,matched
+55,55,same name,cor-ass BVIN,DL,6,9,matched
+59,59,same name,cor-ass BVIN,DL,6,11,matched
+60,60,same name,cor-ass BVIN,DL,12,9,matched
+62,62,same name,cor-ass BVIN,L,11,9,matched
+65,65,same name,PNIN,D,16,25,matched
+68,68,same name,cor-ass BVIN,L,12,23,matched
+70,70,same name,cor-ass BVIN,DL,37,43,matched
+73,73,same name,cor-ass BVIN,L,7,28,matched
+78,78,same name,cor-ass BVIN,L,17,25,matched
+79,79,same name,cor-ass BVIN,L,10,28,matched
+ukn,ukn,same name,BVIN,L,23,12,matched
+ukn2,ukn2,same name,BVIN,L,52,17,matched
+3,3,same name,BVIN,L,6,5,matched
+13,13,same name,BVIN,DL,8,19,matched
+17,17,same name,cor-ass BVIN,L,14,33,matched
+18,18,same name,BVIN,L,18,31,matched
+19,,,,,,,unmatched
+21,21,same name,BVIN,L,19,11,matched
+22,22,same name,BVIN,DL,5,9,matched
+24,24,same name,BVIN,L,7,26,matched
+33,33,same name,BVIN,DL,3,7,matched
+40,,,,,,,unmatched
+41,41,same name,BVIN,DL,8,2,matched
+42,42,same name,BVIN,DL,3,22,matched
+43,43,same name,BVIN,DL,2,1,matched
+44,,,,,,,unmatched
+46,46,same name,BVIN,DL,5,8,matched
+48,48,same name,cor-ass BVIN,L,8,10,matched
+50,50,same name,cor-ass BVIN,L,12,9,matched
+85,85,same name,PNIN,DR,3,22,matched
+88,88,same name,PNIN,DL,2,13,matched
+16,16,same name,BVIN,DL,26,32,matched
+138,,,,,,,unmatched
+90,90,same name,Bipolar prIN,R,21,27,matched
+92,92,same name,Bipolar prIN,R,19,12,matched
+aaIN1,,,,,,,unmatched
+aaIN2,,,,,,,unmatched
+aaIN3,,,,,,,unmatched
+131,131,same name,PNRN,DL,35,72,matched
+Em1,,,,,,,unmatched
+Em2,,,,,,,unmatched
+74,74,same name,pr-AMG RN,DL,24,29,matched
+94,94,same name,pr-AMG RN,DL,29,46,matched
+108,108,same name,pr-AMG RN,R,33,26,matched
+116,116,same name,pr-AMG RN,R,32,78,matched
+123,123,same name,pr-BTN RN,R,56,124,matched
+124,124,same name,pr-AMG RN,DM,20,51,matched
+127,127,same name,pr-AMG RN,DR,35,54,matched
+130,130,same name,pr-BTN RN,R,41,104,matched
+140,140,same name,pr-AMG RN,DM,31,68,matched
+157,157,same name,pr-AMG RN,R,55,93,matched
+80,80,same name,prRN,DL,29,75,matched
+86,86,same name,prRN,L,43,110,matched
+96,96,same name,prRN,L,45,121,matched
+100,100,same name,prRN,L,56,90,matched
+121,121,same name,prRN,DL,29,118,matched
+126,126,same name,prRN,L,48,99,matched
+105,105,same name,pr-cor RN,VM,58,102,matched
+112,112,same name,pr-cor RN,VL,47,75,matched
+119,119,same name,pr-cor RN,VL,35,91,matched
+120,120,same name,AntRN,VR,91,135,matched
+134,134,same name,AntRN,L,38,53,matched
+135,135,same name,AntRN,L,39,51,matched
+142,142,same name,AntRN,VR,75,145,matched
+143,143,same name,AntRN,VL,44,69,matched
+147,147,same name,AntRN,VL,60,164,matched
+152,152,same name,AntRN,VR,63,95,matched
+153,153,same name,AntRN,L,34,41,matched
+159,159,same name,AntRN,DL,38,43,matched
+161,161,same name,AntRN,L,39,175,matched
+103,103,same name,non-sensory RN,DL,39,36,matched
+93,93,same name,nonsensory RN,DL,23,24,matched
+106,106,same name,non-sensory RN,VL,29,31,matched
+122,122,same name,non-sensory RN,DL,30,23,matched
+125,125,same name,non-sensory RN,DL,31,46,matched
+NeckNL,,,,,,,unmatched
+NeckNR,,,,,,,unmatched
+AMG1,AMG1,same name,AMG,DR,28,38,matched
+AMG2,AMG2,same name,AMG,DL,43,62,matched
+AMG3,AMG3,same name,AMG,DR,40,50,matched
+AMG4,AMG4,same name,AMG,DL,43,44,matched
+AMG5,AMG5,same name,AMG,DM,74,66,matched
+AMG6,AMG6,same name,AMG,DR,34,47,matched
+AMG7,AMG7,same name,AMG,DL,21,25,matched
+ddNL,ddNL,same name,ddN,L,67,121,matched
+ddNR,ddNR,same name,ddN,R,65,73,matched
+MGIN1L,MGIN1L,same name,MGIN,VL,70,153,matched
+MGIN1R,MGIN1R,same name,MGIN,VR,63,176,matched
+MGIN2L,MGIN2L,same name,MGIN,VL,75,119,matched
+MGIN2R,MGIN2R,same name,MGIN,VR,69,164,matched
+MGIN3L,MGIN3L,same name,MGIN,L,44,19,matched
+MGIN3R,MGIN3R,same name,MGIN,R,61,28,matched
+MN1L,MN1L,same name,MN,VL,252,117,matched
+MN1R,MN1R,same name,MN,VR,359,126,matched
+MN2L,MN2L,same name,MN,VL,251,52,matched
+MN2R,MN2R,same name,MN,VR,275,90,matched
+MN3L,MN3L,same name,MN,L,48,29,matched
+MN3R,MN3R,same name,MN,R,38,17,matched
+MN4L,MN4L,same name,MN,VL,59,18,matched
+MN4R,MN4R,same name,MN,VR,42,24,matched
+MN5L,MN5L,same name,MN,VL,20,15,matched
+MN5R,MN5R,same name,MN,VR,40,22,matched
+ACIN1L,ACIN1L,same name,ACIN,L,32,12,matched
+ACIN2L,ACIN2L,same name,ACIN,L,31,10,matched
+ACIN2R,ACIN2R,same name,ACIN,R,18,8,matched
+PMGN1,PMGN1,same name,PMGN,R,43,36,matched
+PMGN2,PMGN2,same name,PMGN,R,4,3,matched
+midtail1,mt1,midtail = mt,Midtail neuron,R,14,10,matched
+midtail2,mt2,midtail = mt,Midtail neuron,L,26,14,matched
+midtail4,mt4,midtail = mt,Midtail neuron,R,8,14,matched
+BTN1,,,,,,,unmatched
+BTN2,,,,,,,unmatched
+BTN3,,,,,,,unmatched
+BTN4,,,,,,,unmatched
+pns14,,,,,,,unmatched
+pns2,,,,,,,unmatched
+coronet14,coronet 14*,same name,Coronet,L,11,2,matched
+coronet2,coronet 2*,same name,Coronet,L,14,5,matched
+lens7,,,,,,,unmatched
+113,prIII-113*,id = prIII id,PR (III),VR,-,2,matched
+181,,,,,,,unmatched
+57,,,,,,,unmatched
+5,,,,,,,unmatched
+35,,,,,,,unmatched
+midtail7,mt7,midtail = mt,Midtail neuron,L,2,1,matched

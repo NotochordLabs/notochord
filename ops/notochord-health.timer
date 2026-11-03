@@ -1,0 +1,10 @@
+[Unit]
+Description=Notochord health check every 15 minutes
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+Unit=notochord-health@%i.service
+
+[Install]
+WantedBy=timers.target

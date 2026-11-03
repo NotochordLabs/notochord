@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+runner/state/
+*.tgz
+*.log
+.env
+.env.*
+.DS_Store

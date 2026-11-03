@@ -1,0 +1,16 @@
+[Unit]
+Description=Notochord Experiment 177 runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/opt/notochord
+# Holds RUNNER_PRIVATE_KEY, NOTOCHORD_LIVE=99901, RPC_URLS. Owner read only (chmod 600).
+EnvironmentFile=/etc/notochord.env
+ExecStart=/usr/bin/npx tsx runner/cli.ts run --name %i
+Restart=always
+RestartSec=30
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
