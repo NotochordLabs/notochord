@@ -6,6 +6,8 @@ Artificial brains carrying the mapped wiring of a *Ciona intestinalis* larva evo
 
 **Status: not deployed. Protocol v0.2 is a draft and is not locked.** Nothing here has run on a live chain yet. Everything the site shows today is labelled as a simulation.
 
+Site: [notochord.live](https://www.notochord.live). X: [@notochordx](https://x.com/notochordx).
+
 The experiment manages no funds. Trades are on paper, and it promises no returns.
 
 ## Result so far

@@ -88,6 +88,7 @@ function Frame({ children }: { children: React.ReactNode }) {
           {NAV.map(([href, label]) => (
             <li key={href}><Link href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link></li>
           ))}
+          <li><a href="https://x.com/notochordx" target="_blank" rel="noreferrer">X</a></li>
         </ul>
         <LiveStatus />
       </nav>

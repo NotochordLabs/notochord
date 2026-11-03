@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: { default: "Notochord: Experiment 177", template: "%s · Notochord" },
   description,
   openGraph: { type: "website", siteName: "Notochord", title: "Can a Ciona brain learn the market?", description, url: "/", images: [{ url: "/og.png", width: 1200, height: 630, alt: "The wiring of a Ciona larva, shown as glowing cells and connections" }] },
-  twitter: { card: "summary_large_image", title: "Can a Ciona brain learn the market?", description, images: ["/og.png"] },
+  twitter: { card: "summary_large_image", site: "@notochordx", title: "Can a Ciona brain learn the market?", description, images: ["/og.png"] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
