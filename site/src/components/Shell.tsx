@@ -81,7 +81,7 @@ function Frame({ children }: { children: React.ReactNode }) {
   return (
     <div className={bar ? "app" : "app noBar"}>
       <nav className="rail" aria-label="Sections">
-        <Link href="/" className="brand"><b>Notochord</b><span>Experiment 177</span></Link>
+        <Link href="/" className="brand"><img src="/logo.png" alt="" width="36" height="36" /><div><b>Notochord</b><span>Experiment 177</span></div></Link>
         <SimChip />
         <button className="menuBtn" aria-expanded={menuOpen} aria-controls="siteMenu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
         <ul id="siteMenu" className={menuOpen ? "open" : ""}>

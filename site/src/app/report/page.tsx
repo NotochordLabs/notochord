@@ -17,7 +17,7 @@ export default function Page() {
     <article className="screen paper">
       <header>
         <h1>Report</h1>
-        <p>What was asked, what was found, and what is still unknown. This report runs on historical market data. Nothing has run on chain yet.</p>
+        <p>What was asked, what was found, and what is still unknown. This report runs on historical market data. The experiment has not started on chain.</p>
       </header>
 
       <section>

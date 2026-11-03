@@ -22,6 +22,8 @@ button { font: inherit; color: inherit; }
 .app { display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) var(--bar); height: 100svh; }
 .rail { grid-row: 1; border-right: 1px solid var(--line); padding: 1.1rem 0.75rem; display: flex; flex-direction: column; background: var(--panel); overflow-y: auto; }
 .brand { color: var(--text); text-decoration: none; padding: 0 0.55rem; display: block; margin-bottom: 1.4rem; }
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+.brand img { flex: none; border-radius: 8px; }
 .brand b { display: block; font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; }
 .brand span { color: var(--muted); font-size: 0.85rem; }
 .rail ul { list-style: none; margin: 0; padding: 0; }
