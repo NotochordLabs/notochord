@@ -147,112 +147,330 @@ function wobble(g: THREE.BufferGeometry, amount: number) {
   return g;
 }
 
-/** Soft lobes on a siphon's opening: Ciona has eight on the oral siphon, six on the atrial. */
-function lobed(g: THREE.BufferGeometry, from: number, to: number, lobes: number, depth: number) {
+/* ---- The adult: wet, translucent tissue under light from the surface ---- */
+
+const LIVING_V = `
+uniform float uTime; uniform float uSway;
+varying vec3 vWN; varying vec3 vWP; varying vec3 vP; varying vec2 vUv;
+void main() {
+  vec4 p = vec4(position, 1.0);
+  vec3 n = normal;
+  #ifdef USE_INSTANCING
+  p = instanceMatrix * p;
+  n = mat3(instanceMatrix) * n;
+  #endif
+  vP = p.xyz; vUv = uv;
+  vec4 w = modelMatrix * p;
+  if (uSway > 0.0) {
+    // A soft body is never straight, and the free end moves with the water.
+    float h = w.y + 2.0;
+    w.x += uSway * (0.09 * sin(h * 0.95) + 0.018 * h * h * sin(uTime * 0.55 + h * 0.35));
+    w.z += uSway * (0.06 * cos(h * 1.2) + 0.012 * h * h * cos(uTime * 0.41));
+  }
+  vWP = w.xyz;
+  vWN = normalize(mat3(modelMatrix) * n);
+  gl_Position = projectionMatrix * viewMatrix * w;
+}`;
+
+const LIVING_F = `
+uniform vec3 uColor; uniform vec3 uColor2; uniform float uFade; uniform float uAlpha; uniform float uRimAlpha; uniform float uRimPower;
+uniform float uSpec; uniform float uBump; uniform float uBumpScale; uniform float uMottle; uniform float uBands; uniform float uLattice; uniform float uFolds;
+uniform float uPigFrom; uniform float uPigTo; uniform vec3 uPigment; uniform float uRootFrom; uniform float uRootTo; uniform float uStone; uniform float uBack;
+varying vec3 vWN; varying vec3 vWP; varying vec3 vP; varying vec2 vUv;
+${NOISE}
+float lump(vec3 p) { return noise(p) * 0.7 + noise(p * 2.3) * 0.3; }
+float fbm(vec3 p) { return noise(p) * 0.55 + noise(p * 2.1 + 3.1) * 0.3 + noise(p * 4.3 + 7.7) * 0.15; }
+void main() {
+  vec3 N = normalize(vWN);
+  vec3 V = normalize(cameraPosition - vWP);
+  if (dot(N, V) < 0.0) N = -N;
+  if (uBump > 0.0) {
+    // Height field read as a normal: the slime and small lumps that catch the light.
+    float e = 0.012;
+    vec3 q = vP * uBumpScale;
+    float h = lump(q);
+    vec3 g = vec3(lump(q + vec3(e * uBumpScale, 0, 0)) - h, lump(q + vec3(0, e * uBumpScale, 0)) - h, lump(q + vec3(0, 0, e * uBumpScale)) - h) / e;
+    N = normalize(N - g * uBump);
+  }
+  vec3 L = normalize(vec3(-0.32, 1.0, 0.38));
+  vec3 H = normalize(L + V);
+  float nl = dot(N, L);
+  float wrap = clamp(nl * 0.55 + 0.45, 0.0, 1.0);
+  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), uRimPower);
+
+  vec3 albedo = uColor;
+  float alpha = mix(uAlpha, uRimAlpha, fres);
+  if (uMottle > 0.0) albedo = mix(albedo, uColor2, smoothstep(0.32, 0.72, fbm(vP * 9.0)) * uMottle);
+  if (uFolds > 0.0) {
+    // Lengthwise folds of the stomach wall.
+    float fold = smoothstep(0.2, 0.95, abs(sin(atan(vP.z, vP.x) * 13.0 + vP.y * 3.0)));
+    albedo *= 0.62 + 0.55 * mix(1.0, fold, uFolds);
+  }
+  if (uBands > 0.0) {
+    // Pale longitudinal muscle bands of the body wall, branching towards the siphons.
+    float a = atan(vP.z, vP.x);
+    float wig = (noise(vP * vec3(2.0, 1.4, 2.0)) - 0.5) * 1.5;
+    float band = pow(abs(sin(a * 6.5 + wig * 1.6 + 0.15 * vP.y)), 44.0) * (0.45 + 0.55 * noise(vP * vec3(4.0, 1.1, 4.0)));
+    float fine = 0.0;
+    float m = max(band, fine) * uBands;
+    albedo = mix(albedo, uColor2, m);
+    alpha = max(alpha, m * 0.3);
+  }
+  if (uLattice > 0.0) {
+    // Gill lattice: fine bars around rows of small slits.
+    vec2 c = vec2(vUv.x * 150.0, vUv.y * 52.0);
+    float px = max(fwidth(c.x), fwidth(c.y));
+    vec2 s = abs(fract(c) - 0.5);
+    float slit = smoothstep(0.34 + px * 0.5, 0.2 - px * 0.5, s.x) * smoothstep(0.42 + px * 0.5, 0.3 - px * 0.5, s.y);
+    float bar = 1.0 - slit;
+    float keep = clamp(1.7 - px * 1.8, 0.0, 1.0);
+    alpha *= mix(0.58, 0.22 + bar * 1.35, keep * uLattice);
+    albedo *= mix(0.8, 0.72 + bar * 0.45, keep);
+  }
+  if (uPigTo > uPigFrom) {
+    // The margin of each siphon: yellow, deepening to orange at the very edge.
+    float t = smoothstep(uPigFrom, uPigTo, vP.y + (noise(vP * 14.0) - 0.5) * 0.05);
+    albedo = mix(albedo, uPigment, t);
+    albedo = mix(albedo, vec3(0.8, 0.26, 0.05), smoothstep(0.88, 1.0, t) * 0.55);
+    alpha = mix(alpha, 0.86, t * t);
+  }
+  if (uStone > 0.0) {
+    // Patterned in world units: the rock is a stretched sphere.
+    float big = smoothstep(0.3, 0.7, fbm(vWP * 0.9));
+    float crust = smoothstep(0.55, 0.68, fbm(vWP * 2.1 + 11.0));
+    float grit = noise(vWP * 34.0) * 0.6 + noise(vWP * 90.0) * 0.4;
+    albedo = mix(uColor, uColor2, big);
+    albedo = mix(albedo, vec3(0.12, 0.05, 0.06), crust * 0.4);
+    albedo *= 0.72 + grit * 0.5;
+    // Where each animal sits, the rock is shaded by it.
+    float shade = 1.0;
+    shade *= 0.32 + 0.68 * smoothstep(0.42, 1.0, length((vWP.xz - vec2(0.85, 0.0)) / vec2(0.82, 0.68)));
+    shade *= 0.45 + 0.55 * smoothstep(0.42, 1.0, length((vWP.xz - vec2(-1.5, -2.8)) / vec2(0.5, 0.42)));
+    shade *= 0.45 + 0.55 * smoothstep(0.42, 1.0, length((vWP.xz - vec2(3.5, -3.2)) / vec2(0.55, 0.46)));
+    albedo *= shade;
+  }
+
+  // Blue fill from the water, warmer light from the surface; light that passes through thin tissue.
+  vec3 ambient = vec3(0.1, 0.19, 0.25);
+  vec3 sun = vec3(1.0, 0.98, 0.88) * 1.02;
+  vec3 c = albedo * (ambient + sun * wrap * wrap);
+  c += albedo * vec3(0.5, 0.72, 0.68) * pow(clamp(dot(V, -L) * 0.5 + 0.5, 0.0, 1.0), 2.5) * (fres * 0.45 + 0.08);
+  c *= mix(1.0, 0.52 + 0.48 * clamp(vP.y * 0.28 + 0.7, 0.0, 1.0), 0.5);
+  float highlight = pow(max(dot(N, H), 0.0), 72.0) * 0.5 + pow(max(dot(N, H), 0.0), 420.0) * 1.1;
+  c += vec3(0.92, 0.98, 1.0) * highlight * uSpec;
+  alpha = clamp(alpha + highlight * uSpec * 0.55, 0.0, 1.0);
+  if (!gl_FrontFacing) { c *= uBack; }
+  if (uRootTo > uRootFrom) alpha *= smoothstep(uRootFrom, uRootTo, vP.y);
+  gl_FragColor = vec4(min(c, vec3(1.0)), alpha * uFade);
+}`;
+
+interface LivingOptions {
+  color2?: string; alpha?: number; rimAlpha?: number; rimPower?: number; spec?: number; bump?: number; bumpScale?: number; mottle?: number; bands?: number; lattice?: number; folds?: number;
+  pigFrom?: number; pigTo?: number; pigment?: string; rootFrom?: number; rootTo?: number; stone?: number; back?: number; side?: THREE.Side; solid?: boolean; order?: number;
+}
+
+function livingFactory(time: CionaUniforms, fade: { value: number }, sway: number) {
+  return (color: string, o: LivingOptions = {}) => new THREE.ShaderMaterial({
+    vertexShader: LIVING_V,
+    fragmentShader: LIVING_F,
+    transparent: true,
+    depthWrite: !!o.solid,
+    side: o.side ?? THREE.FrontSide,
+    uniforms: {
+      uTime: time.uTime, uSway: { value: sway }, uFade: fade,
+      uColor: { value: new THREE.Color(color) }, uColor2: { value: new THREE.Color(o.color2 ?? color) },
+      uAlpha: { value: o.alpha ?? 1 }, uRimAlpha: { value: o.rimAlpha ?? o.alpha ?? 1 }, uRimPower: { value: o.rimPower ?? 2.2 },
+      uSpec: { value: o.spec ?? 0.5 }, uBump: { value: o.bump ?? 0 }, uBumpScale: { value: o.bumpScale ?? 7 },
+      uMottle: { value: o.mottle ?? 0 }, uBands: { value: o.bands ?? 0 }, uLattice: { value: o.lattice ?? 0 }, uFolds: { value: o.folds ?? 0 },
+      uPigFrom: { value: o.pigFrom ?? 0 }, uPigTo: { value: o.pigTo ?? 0 }, uPigment: { value: new THREE.Color(o.pigment ?? "#e8b92e") },
+      uRootFrom: { value: o.rootFrom ?? 0 }, uRootTo: { value: o.rootTo ?? 0 }, uStone: { value: o.stone ?? 0 }, uBack: { value: o.back ?? 0.72 },
+    },
+  });
+}
+
+/** Folds, creases and uneven swelling. Periodic around the body, so there is no seam. */
+function fleshy(g: THREE.BufferGeometry, amount: number, phase = 0) {
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const a = Math.atan2(z, x);
+    const lower = Math.max(0, Math.min(1, (0.9 - y) / 2.2));
+    const swell = 0.055 * Math.sin(a * 2 + y * 0.9 + phase) + 0.04 * Math.sin(a * 3 - y * 1.4 + phase * 2) + 0.018 * Math.sin(a * 7 + y * 2.3);
+    const crease = -0.05 * Math.pow(Math.abs(Math.cos(a * 4 + y * 0.7 + phase)), 14);
+    const ring = 0.007 * lower * Math.sin(y * 9 + 2.2 * Math.sin(a * 2 + phase)) + 0.004 * lower * Math.sin(y * 23 + a * 3);
+    const k = 1 + amount * (swell + crease + ring);
+    p.setXYZ(i, x * k, y, z * k);
+  }
+  return g;
+}
+
+/** The two ends of a lathe share positions but not normals; average them to hide the join. */
+function closeSeam(g: THREE.BufferGeometry, rows: number) {
+  g.computeVertexNormals();
+  const n = g.attributes.normal;
+  const columns = n.count / rows;
+  for (let r = 0; r < rows; r++) {
+    const a = r, b = (columns - 1) * rows + r;
+    const v = new THREE.Vector3(n.getX(a) + n.getX(b), n.getY(a) + n.getY(b), n.getZ(a) + n.getZ(b)).normalize();
+    n.setXYZ(a, v.x, v.y, v.z);
+    n.setXYZ(b, v.x, v.y, v.z);
+  }
+  return g;
+}
+
+/** A lathe with the points at a fixed count, so its rows are known. */
+function body(profile: [number, number][], segments: number) {
+  const curve = new THREE.CatmullRomCurve3(profile.map(([y, r]) => new THREE.Vector3(Math.max(r, 0.0005), y, 0)), false, "catmullrom", 0.4);
+  const rows = profile.length * 16 + 1;
+  const pts = curve.getPoints(rows - 1).map((v) => new THREE.Vector2(Math.max(v.x, 0.0005), v.y));
+  return { geometry: new THREE.LatheGeometry(pts, segments), rows };
+}
+
+/** Rounded lobes at an opening, each dipping at its notch. */
+function lobes(g: THREE.BufferGeometry, from: number, to: number, count: number, depth: number, lift: number) {
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const t = Math.max(0, Math.min(1, (y - from) / (to - from)));
-    const k = 1 + depth * t * t * Math.cos(Math.atan2(z, x) * lobes);
-    p.setXYZ(i, x * k, y + 0.05 * t * Math.cos(Math.atan2(z, x) * lobes), z * k);
+    const c = Math.cos(Math.atan2(z, x) * count);
+    const shape = c;
+    p.setXYZ(i, x * (1 + depth * t * t * shape), y + lift * t * t * (shape - 0.2), z * (1 + depth * t * t * shape));
   }
-  g.computeVertexNormals();
   return g;
 }
 
-function lobedRim(radius: number, lobes: number, depth: number) {
-  const pts = Array.from({ length: 96 }, (_, i) => {
-    const a = (i / 96) * Math.PI * 2;
-    const r = radius * (1 + depth * Math.cos(a * lobes));
-    return new THREE.Vector3(Math.cos(a) * r, 0.05 * Math.cos(a * lobes), Math.sin(a) * r);
-  });
-  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 192, 0.011, 8, true);
-}
-
 export function buildAdult(time: CionaUniforms, fade: { value: number }, detail = 1) {
-  const tissue = tissueFactory(time, fade, 0, 1);
+  const live = livingFactory(time, fade, 1);
   const adult = new THREE.Group();
-
-  // Tunic: one soft piece from the holdfast up through the long oral siphon.
-  const tunic = lobed(wobble(lathe([[-2.05, 0.34], [-1.86, 0.47], [-1.45, 0.58], [-0.8, 0.6], [-0.1, 0.57], [0.55, 0.5], [1.05, 0.4], [1.45, 0.29], [1.85, 0.21], [2.25, 0.17], [2.5, 0.2], [2.6, 0.26]], 96), 0.045), 2.25, 2.6, 8, 0.2);
-  adult.add(new THREE.Mesh(tunic, tissue("#d4e8b6", 0.46, { rim: 2.0, body: 0.05, grain: 0.9, fibre: 0.35 })));
-  const inner = lobed(wobble(lathe([[-1.9, 0.22], [-1.4, 0.5], [-0.8, 0.53], [-0.1, 0.5], [0.55, 0.43], [1.05, 0.33], [1.45, 0.23], [1.9, 0.16], [2.5, 0.14]], 96), 0.04), 2.1, 2.5, 8, 0.12);
-  adult.add(new THREE.Mesh(inner, tissue("#efe2a0", 0.32, { rim: 1.5, body: 0.035, grain: 0.7, fibre: 1 })));
-
-  // Branchial basket: the gill lattice that fills most of the body.
-  const basket = lathe([[-0.72, 0.04], [-0.5, 0.38], [0.1, 0.43], [0.8, 0.33], [1.3, 0.2], [1.62, 0.11]], 96);
-  adult.add(new THREE.Mesh(basket, tissue("#d6e8f7", 0.22, { rim: 1.0, body: 0.2, grain: 0.5, grid: 1 })));
-
-  // Atrial siphon: shorter, set to one side.
-  const atrial = lobed(wobble(lathe([[-0.3, 0.19], [0.05, 0.18], [0.45, 0.135], [0.74, 0.11], [0.9, 0.15]], 64), 0.03), 0.68, 0.9, 6, 0.2);
-  const atrialMesh = new THREE.Mesh(atrial, tissue("#d4e8b6", 0.6, { rim: 2.0, body: 0.05, grain: 0.9, fibre: 0.3 }));
-  atrialMesh.position.set(0.37, 1.02, 0.05);
-  atrialMesh.rotation.z = -0.82;
-  adult.add(atrialMesh);
-
-  // Siphon rims: a thin yellow edge with orange pigment spots between the lobes.
-  const rim = (parent: THREE.Object3D, y: number, r: number, lobes: number) => {
-    const ring = new THREE.Mesh(lobedRim(r, lobes, 0.2), tissue("#ffd65c", 0.9, { rim: 0.8, body: 0.55, grain: 0.3 }));
-    ring.position.y = y;
-    parent.add(ring);
-    for (let i = 0; i < lobes; i++) {
-      const a = ((i + 0.5) / lobes) * Math.PI * 2;
-      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.017, 10, 8), tissue("#ff6a22", 1.5, { rim: 0.6, body: 0.8, grain: 0 }));
-      dot.position.set(Math.cos(a) * r * 0.92, y - 0.035, Math.sin(a) * r * 0.92);
-      parent.add(dot);
-    }
+  const add = (g: THREE.BufferGeometry, m: THREE.Material, order: number, parent: THREE.Object3D = adult) => {
+    const mesh = new THREE.Mesh(g, m);
+    mesh.renderOrder = order;
+    parent.add(mesh);
+    return mesh;
   };
-  rim(adult, 2.6, 0.26, 8);
-  const atrialRim = new THREE.Group();
-  atrialRim.position.copy(atrialMesh.position);
-  atrialRim.rotation.copy(atrialMesh.rotation);
-  adult.add(atrialRim);
-  rim(atrialRim, 0.9, 0.15, 6);
+  const phase = detail ? 0.4 : 2.1;
+  const seg = detail ? 128 : 56;
 
-  // Gut: stomach, then the intestine looping up to the atrial chamber.
-  const gutCurve = new THREE.CatmullRomCurve3([[-0.1, -0.72, 0.15], [-0.36, -0.92, 0.2], [-0.4, -1.32, 0.04], [-0.06, -1.52, -0.12], [0.3, -1.33, -0.1], [0.36, -0.9, 0.06], [0.2, -0.56, 0.2], [0.26, 0.15, 0.27], [0.31, 0.72, 0.2]].map(([x, y, z]) => new THREE.Vector3(x, y, z)));
-  adult.add(new THREE.Mesh(new THREE.TubeGeometry(gutCurve, 160, 0.052, 12), tissue("#d9772f", 0.8, { rim: 1.4, body: 0.2, grain: 1 })));
-  const stomach = new THREE.Mesh(wobble(new THREE.SphereGeometry(0.21, 28, 20), 0.05), tissue("#a94f1f", 0.9, { rim: 1.3, body: 0.24, grain: 1, fibre: 0.8 }));
-  stomach.position.set(-0.2, -1.08, 0.05);
-  stomach.scale.set(1.15, 0.85, 0.8);
-  adult.add(stomach);
+  const TUNIC: [number, number][] = [[-2.08, 0.5], [-1.98, 0.5], [-1.72, 0.56], [-1.3, 0.61], [-0.7, 0.62], [-0.05, 0.585], [0.55, 0.51], [1.05, 0.405], [1.45, 0.295], [1.85, 0.215], [2.22, 0.17], [2.47, 0.185], [2.58, 0.24]];
+  const shell = (profile: [number, number][], amount: number, rimStart: number, rimEnd: number, count: number, depth: number, lift: number) => {
+    const { geometry, rows } = body(profile, seg);
+    fleshy(geometry, amount, phase);
+    lobes(geometry, rimStart, rimEnd, count, depth, lift);
+    return closeSeam(geometry, rows);
+  };
 
-  // Pale gonad beside the gut.
-  const count = detail ? 90 : 0;
-  if (count) {
-    const gonad = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), tissue("#fff0d6", 0.5, { rim: 1, body: 0.18, grain: 0.4 }), count);
+  // Interior, nearest the middle first. Each layer draws over what is inside it.
+  // The throat is dark, so the oral siphon reads as an opening rather than a cap.
+  add(shell([[1.55, 0.09], [1.95, 0.12], [2.25, 0.125], [2.48, 0.14]], 0.4, 2.3, 2.48, 8, 0.1, 0.02),
+    live("#1c1411", { alpha: 0.82, spec: 0.1, side: THREE.DoubleSide, back: 1, pigFrom: 2.3, pigTo: 2.48, pigment: "#6d3e16", rootFrom: 1.75, rootTo: 2.4 }), 1);
+
+  // Gut: a mottled stomach and the intestine looping back up to the atrial chamber.
+  const gutMat = live("#7b3512", { color2: "#c86b24", mottle: 1, alpha: 0.97, rimAlpha: 1, spec: 0.7, bump: 0.014, bumpScale: 13, solid: true });
+  const gutPath = [[-0.1, -0.72, 0.15], [-0.36, -0.92, 0.2], [-0.4, -1.32, 0.04], [-0.06, -1.52, -0.12], [0.3, -1.33, -0.1], [0.36, -0.9, 0.06], [0.2, -0.56, 0.2], [0.26, 0.15, 0.27], [0.31, 0.72, 0.2]].map(([x, y, z]) => new THREE.Vector3(x, y, z));
+  const gutRadius = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gutPath), 200, 0.055, 14);
+  add(gutRadius, gutMat, 2);
+  const stomach = new THREE.SphereGeometry(0.235, 48, 32);
+  stomach.scale(1.18, 0.92, 0.84);
+  stomach.rotateZ(-0.35);
+  stomach.translate(-0.2, -1.08, 0.05);
+  stomach.computeVertexNormals();
+  add(stomach, live("#7c3714", { color2: "#a95422", mottle: 0.75, alpha: 1, spec: 0.7, folds: 1, bump: 0.01, bumpScale: 17, solid: true }), 2);
+
+  if (detail) {
+    // Gonad: a pale lobed mass in the gut loop, with ducts running alongside the intestine.
+    const count = 150;
+    const gonad = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), live("#eee0ac", { color2: "#cda863", mottle: 0.6, alpha: 0.96, spec: 0.5, solid: true }), count);
     const d = new THREE.Object3D();
     let seed = 41;
     const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     for (let i = 0; i < count; i++) {
       const a = r() * 6.28, h = r();
-      d.position.set(0.12 + Math.cos(a) * 0.17 * r(), -1.14 + h * 0.44, -0.08 + Math.sin(a) * 0.17 * r());
-      d.scale.setScalar(0.014 + r() * 0.016);
+      d.position.set(0.1 + Math.cos(a) * 0.2 * Math.sqrt(r()), -1.2 + h * 0.5, -0.03 + Math.sin(a) * 0.15 * Math.sqrt(r()));
+      d.scale.setScalar(0.02 + r() * 0.024);
       d.updateMatrix();
       gonad.setMatrixAt(i, d.matrix);
     }
+    gonad.renderOrder = 2;
     adult.add(gonad);
-
-    // Endostyle: the pale groove down the front of the basket.
-    const endostyle = new THREE.CatmullRomCurve3([[-0.32, 1.3, 0.1], [-0.42, 0.55, 0.14], [-0.47, -0.15, 0.12], [-0.34, -0.62, 0.05]].map(([x, y, z]) => new THREE.Vector3(x, y, z)));
-    adult.add(new THREE.Mesh(new THREE.TubeGeometry(endostyle, 60, 0.011, 8), tissue("#f3f6dc", 0.42, { rim: 0.7, body: 0.45, grain: 0.3 })));
+    const duct = (off: number, color: string, radius: number) => {
+      const pts = [[0.1, -0.75, 0.16], [0.17, -0.5, 0.25], [0.24, 0.15, 0.32], [0.3, 0.78, 0.24 + off]].map(([x, y, z]) => new THREE.Vector3(x + off, y, z + off));
+      add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 90, radius, 8), live(color, { color2: "#d7421b", alpha: 0.95, spec: 0.5, solid: true, pigFrom: 0.42, pigTo: 0.78, pigment: "#d9441c" }), 2);
+    };
+    duct(0.06, "#d9c78f", 0.013);
+    duct(-0.05, "#e8dfc3", 0.008);
   }
+
+  // Branchial basket: the gill lattice filling most of the body.
+  const basketShape = body([[-0.72, 0.05], [-0.5, 0.4], [0.1, 0.46], [0.8, 0.36], [1.3, 0.21], [1.62, 0.11]], seg);
+  fleshy(basketShape.geometry, 0.3, phase);
+  closeSeam(basketShape.geometry, basketShape.rows);
+  add(basketShape.geometry, live("#bcc6a4", { alpha: 0.17, rimAlpha: 0.3, spec: 0.1, lattice: detail ? 0.75 : 0.3, side: THREE.DoubleSide, back: 0.6 }), 3);
+
+  if (detail) {
+    // Endostyle: the pale groove down the front of the basket.
+    const endostyle = new THREE.CatmullRomCurve3([[-0.28, 1.3, 0.1], [-0.42, 0.55, 0.16], [-0.47, -0.15, 0.14], [-0.34, -0.62, 0.05]].map(([x, y, z]) => new THREE.Vector3(x, y, z)));
+    add(new THREE.TubeGeometry(endostyle, 80, 0.016, 8), live("#e6dfc0", { alpha: 0.38, spec: 0.2 }), 3);
+  }
+
+  // Body wall, with its muscle bands.
+  add(shell([[-1.92, 0.3], [-1.5, 0.52], [-0.8, 0.56], [-0.1, 0.525], [0.55, 0.455], [1.05, 0.35], [1.45, 0.245], [1.9, 0.17], [2.45, 0.15]], 0.8, 2.2, 2.45, 8, 0.1, 0.02),
+    live("#c9bc86", { color2: "#ece4c2", alpha: 0.07, rimAlpha: 0.26, spec: 0.08, bands: 0.8, side: THREE.DoubleSide, pigFrom: 2.1, pigTo: 2.42 }), 4);
+
+  // Atrial siphon, off to one side and leaving the body at a slant.
+  const atrialGroup = new THREE.Group();
+  atrialGroup.position.set(0.36, 0.98, 0.06);
+  atrialGroup.rotation.z = -0.8;
+  adult.add(atrialGroup);
+  const atrialShell = (profile: [number, number][], from: number, to: number) => {
+    const { geometry, rows } = body(profile, detail ? 72 : 40);
+    fleshy(geometry, 0.55, phase + 1);
+    lobes(geometry, from, to, 6, 0.1, 0.025);
+    return closeSeam(geometry, rows);
+  };
+  add(atrialShell([[0.25, 0.08], [0.55, 0.075], [0.82, 0.095]], 0.65, 0.82),
+    live("#1c1411", { alpha: 0.82, spec: 0.1, side: THREE.DoubleSide, back: 1, pigFrom: 0.68, pigTo: 0.82, pigment: "#6d3e16", rootFrom: 0.3, rootTo: 0.75 }), 4, atrialGroup);
+  const atrialProfile: [number, number][] = [[-0.36, 0.2], [0.0, 0.19], [0.4, 0.135], [0.72, 0.112], [0.9, 0.16]];
+  const atrial = atrialShell(atrialProfile, 0.7, 0.9);
+  const atrialTissue = { alpha: 0.13, rimAlpha: 0.82, rimPower: 1.9, spec: 0.85, bump: 0.008, bumpScale: 9, pigFrom: 0.76, pigTo: 0.93, rootFrom: -0.2, rootTo: 0.12 };
+  add(atrial, live("#b9c58f", { ...atrialTissue, side: THREE.BackSide }), 5, atrialGroup);
+  add(atrial, live("#ccd49c", atrialTissue), 7, atrialGroup);
+
+  // Tunic: one soft, slimy piece from the holdfast to the lobes of the oral siphon.
+  const tunic = shell(TUNIC, 1, 2.34, 2.58, 8, 0.1, 0.03);
+  const tunicTissue = { alpha: 0.1, rimAlpha: 0.82, rimPower: 2.1, spec: 0.95, bump: 0.009, bumpScale: 8, pigFrom: 2.42, pigTo: 2.6 };
+  add(tunic, live("#a9b67e", { ...tunicTissue, side: THREE.BackSide }), 5);
+  add(tunic, live("#c7d097", tunicTissue), 6);
+
+  // Small orange-red ocelli in the notches between the lobes.
+  const spots = (parent: THREE.Object3D, y: number, r: number, n: number, size: number) => {
+    const material = live("#e23f12", { alpha: 1, spec: 0.6, solid: true });
+    for (let i = 0; i < n; i++) {
+      const a = ((i + 0.5) / n) * Math.PI * 2;
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 8), material);
+      dot.position.set(Math.cos(a) * r, y, Math.sin(a) * r);
+      dot.renderOrder = 8;
+      parent.add(dot);
+    }
+  };
+  spots(adult, 2.525, 0.222, 8, 0.012);
+  spots(atrialGroup, 0.86, 0.15, 6, 0.0095);
   return adult;
 }
 
-/** Rock the colony grows on. It does not sway. */
+/** Rock the colony grows on. It does not sway, and light does not pass through it. */
 export function buildRock(time: CionaUniforms, fade: { value: number }) {
-  const tissue = tissueFactory(time, fade, 0, 0);
-  const g = new THREE.SphereGeometry(1, 96, 48);
+  const live = livingFactory(time, fade, 0);
+  const g = new THREE.SphereGeometry(1, 220, 110);
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const k = 1 + 0.09 * Math.sin(x * 5 + z * 3) + 0.05 * Math.sin(z * 11 + x * 7) + 0.03 * Math.sin(x * 23 + y * 13);
+    const k = 1 + 0.12 * Math.sin(x * 4.3 + z * 2.7) + 0.075 * Math.sin(z * 9.1 + x * 6.3 + y * 2) + 0.04 * Math.sin(x * 19 + y * 11 + z * 5) + 0.018 * Math.sin(x * 43 + z * 37) + 0.012 * Math.sin(z * 71 + y * 29 + x * 13);
     p.setXYZ(i, x * k, y * k, z * k);
   }
   g.computeVertexNormals();
-  const rock = new THREE.Mesh(g, tissue("#3d4a66", 0.42, { rim: 1.3, body: 0.09, grain: 1 }));
-  rock.scale.set(3.4, 0.5, 1.9);
+  const rock = new THREE.Mesh(g, live("#2d3134", { color2: "#524a3f", alpha: 1, spec: 0.12, bump: 0.05, bumpScale: 11, stone: 1, solid: true }));
+  rock.renderOrder = 0;
+  rock.scale.set(7, 1.6, 3.5);
   return rock;
 }
 

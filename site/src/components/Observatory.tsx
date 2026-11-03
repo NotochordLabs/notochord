@@ -235,7 +235,7 @@ export default function Observatory() {
     const neighbourFade = { value: 0.3 };
     const neighbours = [
       { x: -1.5, y: -0.83, z: -2.8, s: 0.6, r: 0.1 },
-      { x: 3.5, y: -0.75, z: -3.2, s: 0.66, r: -0.14 },
+      { x: 3.5, y: -0.9, z: -3.2, s: 0.66, r: -0.14 },
     ].map((n) => {
       const g = buildAdult(clock, neighbourFade, 0);
       g.position.set(n.x, n.y, n.z);
@@ -245,7 +245,7 @@ export default function Observatory() {
       return g;
     });
     const rock = buildRock(clock, adultFade);
-    rock.position.set(0.85, -2.2, -0.2);
+    rock.position.set(0.85, -3.3, -1.3);
     scene.add(rock);
 
     // Water: light from the surface falling into darkness. Gone inside the brain view.
