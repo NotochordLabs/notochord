@@ -9,6 +9,8 @@ Can a Ciona brain learn the market?
 [![chain](https://img.shields.io/badge/chain-Kinetiq_Elysium_·_not_deployed-555555?style=flat-square)](#status)
 [![protocol](https://img.shields.io/badge/protocol-v0.2_draft-d9822b?style=flat-square)](protocol/v0.2.json)
 [![result](https://img.shields.io/badge/result-market_learning_not_shown-ff5c9a?style=flat-square)](#result-so-far)
+[![code](https://img.shields.io/badge/code-AGPL--3.0-111111?style=flat-square)](LICENSE)
+[![data](https://img.shields.io/badge/data-CC_BY_4.0-111111?style=flat-square)](LICENSE-DATA.md)
 
 The tadpole larva of the sea squirt *Ciona intestinalis* has 177 central neurons.
 Ryan, Lu and Meinertzhagen mapped all of them from electron micrographs in 2016,
@@ -172,3 +174,9 @@ Ryan K, Lu Z, Meinertzhagen IA (2016). The CNS connectome of a tadpole larva of
 CC BY 4.0.
 
 Prices from Hyperliquid's public `info` API. Randomness from drand quicknet.
+
+## License
+
+Code: [AGPL-3.0](LICENSE). Data: [CC BY 4.0](LICENSE-DATA.md). If you run a
+modified version of this code as a public service, you have to publish your
+changes too.
