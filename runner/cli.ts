@@ -333,7 +333,8 @@ if (process.argv[1]?.endsWith("cli.ts")) {
   commands[command]().then(
     () => process.exit(0),
     (e) => {
-      console.error(`Error: ${(e as { shortMessage?: string }).shortMessage ?? (e as Error).message}`);
+      // The full message carries the URL and HTTP status; the short one hides what failed.
+      console.error(`Error: ${(e as Error).message}`);
       process.exit(1);
     },
   );

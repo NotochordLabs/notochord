@@ -3,6 +3,10 @@
 # with a manifest it runs; without one it deploys only when DEPLOY_ARGS asks for it.
 set -eu
 : "${EXPERIMENT_NAME:?Set EXPERIMENT_NAME}"
+# Read-only: shows whether this machine can reach the RPC, drand and Hyperliquid.
+if [ -n "${CHECK_ON_START:-}" ]; then
+  npx tsx runner/cli.ts check || true
+fi
 manifest="runner/state/$EXPERIMENT_NAME/manifest.json"
 if [ ! -f "$manifest" ]; then
   if [ -z "${DEPLOY_ARGS:-}" ]; then
