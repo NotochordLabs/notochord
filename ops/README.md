@@ -35,6 +35,21 @@ Thoughts are filled in after the fact. The runner must be running before the sta
 - **Docker:** `docker build -f ops/Dockerfile -t notochord-runner .`, then mount a persistent volume for `runner/state`. The volume must be writable by the `node` user.
 - **systemd:** install `ops/notochord-runner.service` as `notochord-runner@<name>.service`.
 
+## Railway
+
+`railway.json` selects `ops/Dockerfile`. Set these on the service, and mount a volume at `/app/runner/state`:
+
+| Variable | Value |
+| --- | --- |
+| `EXPERIMENT_NAME` | For example `test-2` |
+| `DEPLOY_ARGS` | Used once if no manifest exists, for example `--replicates 1 --shuffled 0 --generations 1 --holdout 1` |
+| `RUNNER_PRIVATE_KEY` | A wallet used by no other runner |
+| `NOTOCHORD_LIVE` | `99901` |
+| `RPC_URLS` | `https://rpc-live.boxa.club` |
+| `RAILWAY_RUN_UID` | `0` (volumes mount as root) |
+
+Without `DEPLOY_ARGS` and a manifest, the service waits and sends nothing. Turn off automatic deployments before the real experiment: a new commit would run code that differs from the `protocolHash` on chain.
+
 ## Monitoring
 
 `npm run runner:health -- --name <name>` reads from the chain: how many hours each replicate is behind, the wallet balance, and the runner's last heartbeat. If something is wrong the exit code is 1. Run it every 15 minutes (`ops/notochord-health.timer`). The `status.json` it writes can be served to the site.

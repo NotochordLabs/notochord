@@ -8,8 +8,9 @@ COPY src ./src
 COPY runner ./runner
 COPY data ./data
 COPY protocol ./protocol
+COPY ops/start.sh ./ops/start.sh
 RUN mkdir -p runner/state && chown -R node:node runner/state
 USER node
 ENV NODE_ENV=production
 HEALTHCHECK --interval=5m --timeout=60s --start-period=2m CMD sh -c 'test $(( $(date +%s) - $(date -r runner/state/$EXPERIMENT_NAME/heartbeat +%s) )) -lt 600'
-CMD ["sh", "-c", "exec npx tsx runner/cli.ts run --name \"$EXPERIMENT_NAME\""]
+CMD ["sh", "ops/start.sh"]
