@@ -10,7 +10,4 @@ export const TOKEN = {
   network: "Elysium (chain ID 99901)" as string | null,
   /** Link to the address on that network's explorer. */
   explorerUrl: null as string | null,
-  totalSupply: null as string | null,
-  teamShare: null as string | null,
-  liquidity: null as string | null,
 };

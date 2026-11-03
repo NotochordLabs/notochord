@@ -11,9 +11,6 @@ export const metadata: Metadata = {
 export default function Page() {
   const facts: [string, string | null][] = [
     ["Network", TOKEN.network],
-    ["Total supply", TOKEN.totalSupply],
-    ["Team share", TOKEN.teamShare],
-    ["Liquidity", TOKEN.liquidity],
   ];
   return (
     <article className="chord">
