@@ -20,7 +20,7 @@ export default function Page() {
       <header className="chordHero">
         <div>
           <h1>{TOKEN.ticker}</h1>
-          <p>The token of the Notochord experiment. It cannot change the science.</p>
+          <p>The token of the Notochord experiment, a public test of whether a Ciona brain can learn the market.</p>
         </div>
         <img src="/neuron.jpg" alt="" width={720} height={720} />
       </header>
@@ -42,25 +42,14 @@ export default function Page() {
 
       <div className="chordTruth">
         <section>
-          <h2>What it does</h2>
-          <p>Nothing yet. Holding it gives you no access, vote or service.</p>
-          <p><span>Proposed, not built:</span> funding later experiments, and voting on what the next one tests. If either ships, this page will say so.</p>
+          <h2>Utility</h2>
+          <p>Use cases for {TOKEN.ticker} are planned and will be announced on this page. They are not live yet.</p>
         </section>
         <section>
-          <h2>What it will not do</h2>
-          <ul>
-            <li>Change the experiment’s rules, data or result</li>
-            <li>Give a claim on funds, fees or revenue</li>
-            <li>Make you the owner of a larva</li>
-            <li>Show, through its price, whether the brains learned</li>
-          </ul>
+          <h2>Independent science</h2>
+          <p>The experiment’s rules are public and no token can change them, so anyone can check its result, whatever it is.</p>
         </section>
       </div>
-
-      <section className="chordRisk">
-        <h2>Do not buy it expecting a return</h2>
-        <p>It can lose all of its value. The experiment may also fail: the test so far reports market learning not shown, and it has not yet started on chain under final rules. <Link href="/report/">Read the report</Link> or <Link href="/protocol/">the protocol</Link>.</p>
-      </section>
 
       <section className="chordFacts">
         <h2>Token details</h2>
@@ -73,6 +62,7 @@ export default function Page() {
           ))}
         </dl>
         <p>The experiment’s wallet is separate from every token wallet.</p>
+        <p className="chordNotice">{TOKEN.ticker} is not an investment and promises no returns. It gives no claim on funds or revenue, and its value can fall. The experiment’s outcome is open: the test so far reports market learning not shown. <Link href="/report/">Read the report</Link>.</p>
       </section>
     </article>
   );
