@@ -18,6 +18,7 @@ async function call(rpc: string, to: string, data: string): Promise<number> {
 }
 
 export function useLive() {
+  const [deployed, setDeployed] = useState(false);
   const [live, setLive] = useState<{ gen: number; hour: number; total: number; finished: boolean } | null>(null);
   useEffect(() => {
     let stop = false;
@@ -26,6 +27,7 @@ export function useLive() {
         const cfg = (await (await fetch("/live/config.json")).json()) as Config;
         // A local or test deployment must never be presented as the experiment.
         if (!cfg.deployed || cfg.simulated || cfg.chainId !== 99901) return;
+        if (!stop) setDeployed(true);
         const to = cfg.replicates[0];
         const [phase, gen, hour] = await Promise.all([call(cfg.rpc, to, PHASE), call(cfg.rpc, to, GENERATION), call(cfg.rpc, to, HOURS)]);
         if (!stop) setLive({ gen, hour, total: cfg.generations, finished: phase === 4 });
@@ -37,33 +39,33 @@ export function useLive() {
     const t = setInterval(read, 60_000);
     return () => { stop = true; clearInterval(t); };
   }, []);
-  return live;
+  return { live, deployed };
 }
 
 /** The rail note is hidden on phones, so the same fact sits beside the menu there. */
 export function SimChip() {
-  const live = useLive();
-  return live ? null : <span className="simChip">Simulation</span>;
+  // The charts on this site remain an archived simulation even while the chain runs.
+  return <span className="simChip">Archive charts</span>;
 }
 
 export default function LiveStatus() {
-  const live = useLive();
-  if (!live) return <p className="railNote">Simulation preview on historical data. The experiment has not started on chain. No funds are managed and no returns are promised.</p>;
+  const { live, deployed } = useLive();
+  if (!deployed) return <p className="railNote">Simulation preview on historical data. No funds are managed and no returns are promised.</p>;
   return (
     <p className="railNote">
-      <b>On chain, Elysium.</b> {live.finished ? `All ${live.total} generations closed.` : `Generation ${live.gen} of ${live.total}, hour ${live.hour}.`} The charts here still show the archived simulation. No funds are managed and no returns are promised.
+      <b>On chain, Elysium.</b> {!live ? "Current status could not be read." : live.finished ? `All ${live.total} generations closed.` : `Generation ${live.gen + 1} of ${live.total}, hour ${live.hour}.`} The charts here show the archived simulation. No funds are managed and no returns are promised.
     </p>
   );
 }
 
 /** The headline state of the experiment. Same rule: on-chain wording only from a chain answer. */
 export function HeadStatus() {
-  const live = useLive();
-  const phase = !live ? "Not started on chain" : live.finished ? `All ${live.total} generations closed` : `Generation ${live.gen} of ${live.total}, on chain`;
+  const { live, deployed } = useLive();
+  const phase = !deployed ? "Not started on chain" : !live ? "On chain since 4 Nov 2026" : live.finished ? `All ${live.total} generations closed` : `Generation ${live.gen + 1} of ${live.total}, on chain`;
   return (
     <dl className="headStatus">
       <div><dt>Experiment</dt><dd>{phase}</dd></div>
-      <div><dt>First measurement</dt><dd>Market learning not shown</dd></div>
+      <div><dt>Earlier test</dt><dd>Market learning not shown</dd></div>
       <div className="headLink"><a className="headPrimary" href="/how/">How it works</a><a href="/report/">Read the report</a></div>
     </dl>
   );

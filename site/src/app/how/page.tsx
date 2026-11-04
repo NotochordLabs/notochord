@@ -71,7 +71,7 @@ const FAQ = [
   ["Is this an AI agent?", "No. There is no language model, plan or reasoning. Each brain is a small, fixed network that turns inputs into a decision."],
   ["Does a brain learn?", "Not during its life. Its connection strengths are written in its genome and never change. Any improvement comes across generations, through selection."],
   ["How do we know whether it worked?", "After 100 generations, the brains face 28 days of market data they have never seen. To pass, selection must beat both the control group and simply not trading, across six independent replicates."],
-  ["Has it worked so far?", "Not shown. In the one test so far, on data already seen once, selection did not clear the threshold. The final result will be published in the same form, whichever way it goes."],
+  ["Has it worked so far?", "Unknown. The on-chain run has only begun. An earlier test, on data already seen once, did not clear the threshold. The final result will be published in the same form, whichever way it goes."],
   ["What does the blockchain do?", "It keeps the public record. Decisions, survivors and genomes are written to Elysium, and the randomness comes from drand, so anyone can recompute the run and check it."],
   ["Is real money traded?", "No. The experiment manages no funds, and its trades exist only on paper."],
 ] as const;

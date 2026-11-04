@@ -17,7 +17,7 @@ export default function Page() {
     <article className="screen paper">
       <header>
         <h1>Report</h1>
-        <p>What was asked, what was found, and what is still unknown. This report runs on historical market data. The experiment has not started on chain.</p>
+        <p>What was asked, what was found, and what is still unknown. This report covers an earlier test on historical market data. The on-chain experiment began on 4 November 2026 and has no result yet.</p>
       </header>
 
       <section>
@@ -76,8 +76,8 @@ export default function Page() {
       <section>
         <h2>What comes next</h2>
         <ul className="limits">
-          <li>Publish the final rules before the run, then test on a market period nobody has seen.</li>
-          <li>Run on Elysium, in public: {data.config.generations} days of training, then 28 unseen days, with six replicates on the real map and six on shuffled wiring. Publish this report in the same form whatever the result.</li>
+          <li>Protocol v0.2 was locked before the run. Its hash, 0x00dee041…d3a7, is recorded on chain.</li>
+          <li>The experiment runs on Elysium for {data.config.generations} days, then faces 28 unseen days, with six replicates on the real map and six on shuffled wiring. This report will be published in the same form whatever the result.</li>
         </ul>
         <p className="afterTable">This experiment manages no funds and promises no returns.</p>
       </section>

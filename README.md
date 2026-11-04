@@ -6,8 +6,8 @@ Can a Ciona brain learn the market?
 [![connectome](https://img.shields.io/badge/connectome-Ryan_et_al._2016-6e8bff?style=flat-square)](https://doi.org/10.7554/eLife.16962)
 [![cells](https://img.shields.io/badge/cells-216-46e08c?style=flat-square)](#the-wiring)
 [![connections](https://img.shields.io/badge/connections-3%2C010-46e08c?style=flat-square)](#the-wiring)
-[![chain](https://img.shields.io/badge/chain-Kinetiq_Elysium_·_not_deployed-555555?style=flat-square)](#status)
-[![protocol](https://img.shields.io/badge/protocol-v0.2_draft-d9822b?style=flat-square)](protocol/v0.2.json)
+[![chain](https://img.shields.io/badge/chain-Kinetiq_Elysium_·_running-46e08c?style=flat-square)](#status)
+[![protocol](https://img.shields.io/badge/protocol-v0.2_locked-46e08c?style=flat-square)](protocol/v0.2.json)
 [![result](https://img.shields.io/badge/result-market_learning_not_shown-ff5c9a?style=flat-square)](#result-so-far)
 [![code](https://img.shields.io/badge/code-AGPL--3.0-111111?style=flat-square)](LICENSE)
 [![data](https://img.shields.io/badge/data-CC_BY_4.0-111111?style=flat-square)](LICENSE-DATA.md)
@@ -33,8 +33,7 @@ Site: [notochord.live](https://www.notochord.live) · X: [@notochordx](https://x
 
 ## Status
 
-Not deployed. Protocol v0.2 is still a draft. The contracts have only run on a
-local chain, and everything on the site today is a simulation on historical data.
+Running on Elysium (chain ID 99901) since 4 November 2026 under protocol v0.2, locked at commit `48d6fbf`. Protocol hash: `0x00dee041adba5494dc69dbc09031534a0864485b6bd2263a3953279dc909d3a7`. No result yet. Contract addresses are in [`site/public/live/experiment-177.json`](site/public/live/experiment-177.json).
 
 When the protocol is locked, the experiment will run on Kinetiq Elysium beta
 mainnet: six replicates on the real wiring and six on shuffled wiring.

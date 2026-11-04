@@ -1,0 +1,98 @@
+{
+  "verifier": "0x0fed8d61ce125e74a444ed5eeb91a984c81f2806",
+  "name": "experiment-177",
+  "chainId": 99901,
+  "simulated": false,
+  "coin": "HYPE",
+  "seed": "experiment-177-chain-v0.2",
+  "startMs": 1793782800000,
+  "rules": {
+    "selectionSize": 64,
+    "controlSize": 16,
+    "generations": 100,
+    "hoursPerGeneration": 24,
+    "holdoutHours": 672
+  },
+  "protocolHash": "0x00dee041adba5494dc69dbc09031534a0864485b6bd2263a3953279dc909d3a7",
+  "replicates": [
+    {
+      "index": 1,
+      "generation": "0x29b9d69ef5a94f67545b2818ae2777ca5c0e3d62",
+      "fossil": "0x3584411413e1fc7e1ae8cfe18dea181cd1fe0d4a",
+      "specimen": "0xf62aBDDde655dcc6b4C783fa6b68050F756E7E4F"
+    },
+    {
+      "index": 2,
+      "generation": "0xb041061cc6360d15b7c8d906736854b6d050e6f0",
+      "fossil": "0x3f4250ef8871138d10e3069037f9eb576db540bb",
+      "specimen": "0x2044239A198E1dd976F061FB8a5Edf39A3b0E7f4"
+    },
+    {
+      "index": 3,
+      "generation": "0xc758547669dcea667ddeebc5957e0602738e689d",
+      "fossil": "0x7a915ce8fc387107fdb0d83844b4368697531407",
+      "specimen": "0x8E4420E91B9aee8926c654849cED01777debA1FA"
+    },
+    {
+      "index": 4,
+      "generation": "0xdcd21da38ce0ed9cb04736b044d00944a03848d6",
+      "fossil": "0x73d7c49fc3ce58ada0369f4a58bcd123420a9fad",
+      "specimen": "0x6366b5f46f36Cc5c7e71F99f2409B458a5669895"
+    },
+    {
+      "index": 5,
+      "generation": "0x65a25032eab21289fe9d0dc95be4bb11af19d2fd",
+      "fossil": "0xbf390f48e7b6734d3e99572a63f92763d1434471",
+      "specimen": "0xf517bF54a6CC65Bd8223B6dBda53d92681339200"
+    },
+    {
+      "index": 6,
+      "generation": "0x3f9b65534cf5e520e738b214e684c37d7e17b55b",
+      "fossil": "0x726cf6d04deda8c38a6ecb85205ea29cf970f533",
+      "specimen": "0x079402aaa9A4890C702b5697F3bf8a38501378b8"
+    },
+    {
+      "index": 7,
+      "generation": "0x834235913f255f4ae9ab7ebed386d67b40c0559a",
+      "fossil": "0xa7cac6eca4f6f74e0e78d469118e8d60df405d98",
+      "specimen": "0x0C208560B9611a2F86670986774f13cD0648Ab50",
+      "wiring": "shuffled"
+    },
+    {
+      "index": 8,
+      "generation": "0xb0a114d3301561690b21a0973fec366360ddbb55",
+      "fossil": "0x108d622576fae449523ba17e7c2556ccd40b001d",
+      "specimen": "0xe1Ba101f915D3301226d4A29DdAc224DaF83ba0f",
+      "wiring": "shuffled"
+    },
+    {
+      "index": 9,
+      "generation": "0x54f49a9bc2be6a2ca443273b51afdc2c1073652c",
+      "fossil": "0xca323747300b41f9344f9341ea1a199a5f995079",
+      "specimen": "0x6facBc5a745A10d566DcEaF7E8b3536C8eC5941E",
+      "wiring": "shuffled"
+    },
+    {
+      "index": 10,
+      "generation": "0x60521d7445ec673526ae9af77daa43c428ed5cf0",
+      "fossil": "0x22f3e0e113c49c9d6fc604f9ed5aff5ff7a1f991",
+      "specimen": "0x8073C3b598dc3A7F98d52661366B98DFECd93a13",
+      "wiring": "shuffled"
+    },
+    {
+      "index": 11,
+      "generation": "0xe631730835c25d9fb9296bb6f3034d1fa682e9e9",
+      "fossil": "0xde5afb4d15c36365c24a5dc842aac837d17c1a8b",
+      "specimen": "0x39f79767034010d7C47b494D9E9ED3F914A4fBF8",
+      "wiring": "shuffled"
+    },
+    {
+      "index": 12,
+      "generation": "0x9f7d23632b9987d35dc43bb64dacf103650019e9",
+      "fossil": "0x7f1d8a978b33b4b39b499521099a4671260ac357",
+      "specimen": "0xEddD9c28395e0Fc1575333C8F805cbFb0e326CB7",
+      "wiring": "shuffled"
+    }
+  ],
+  "deployBlock": "375498"
+}

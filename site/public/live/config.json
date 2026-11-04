@@ -1,1 +1,15 @@
-{"deployed":false}
+{
+  "deployed": true,
+  "rpc": "https://rpc.betweenquotes.xyz",
+  "chainId": 99901,
+  "simulated": false,
+  "generations": 100,
+  "replicates": [
+    "0x29b9d69ef5a94f67545b2818ae2777ca5c0e3d62",
+    "0xb041061cc6360d15b7c8d906736854b6d050e6f0",
+    "0xc758547669dcea667ddeebc5957e0602738e689d",
+    "0xdcd21da38ce0ed9cb04736b044d00944a03848d6",
+    "0x65a25032eab21289fe9d0dc95be4bb11af19d2fd",
+    "0x3f9b65534cf5e520e738b214e684c37d7e17b55b"
+  ]
+}

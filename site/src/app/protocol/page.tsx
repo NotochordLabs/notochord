@@ -70,7 +70,7 @@ export default function Page() {
           <li>The larva model is schematic. Network positions are not anatomical.</li>
           <li>Thoughts and genomes on this site can be recomputed for replicate 1. Other replicates publish their records without genomes in this preview.</li>
           <li>On chain, decisions, fitness and genome hashes will come from the runner. Anyone can recompute them from public data with the open verifier, and can recompute a single thought on the EVM. The contract does not enforce them.</li>
-          <li>This experiment manages no funds and promises no returns. The contracts are written but not deployed.</li>
+          <li>This experiment manages no funds and promises no returns. The contracts run on Elysium under protocol v0.2, locked before the run.</li>
         </ul>
       </section>
 
