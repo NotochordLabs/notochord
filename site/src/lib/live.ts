@@ -118,7 +118,7 @@ async function brainFor(url: string, m: Manifest, t: LiveThought): Promise<LiveB
 async function read(previous: Feed): Promise<Feed> {
   const c = (await (await fetch("/live/config.json")).json()) as Config;
   if (!c.deployed || c.simulated || c.chainId !== 99901) return EMPTY;
-  const m = (await (await fetch("/live/experiment-177.json")).json()) as Manifest;
+  const m = (await (await fetch("/live/d7f3a9c2.json")).json()) as Manifest;
   const url = c.rpc;
   if (num(await rpc<string>(url, "eth_chainId", [])) !== m.chainId) throw new Error("wrong chain");
   const block = num(await rpc<string>(url, "eth_blockNumber", []));
