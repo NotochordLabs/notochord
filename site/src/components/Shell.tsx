@@ -9,23 +9,11 @@ import { dateOf, ExperimentProvider, fmt, GENERATIONS, REPLICATES, useExperiment
 /** Reading pages have nothing that moves with the generation, so they get no time bar. */
 const NO_TIME_BAR = ["/cells/", "/report/", "/protocol/", "/verify/", "/chord/", "/how/", "/test-run/", "/experiment/", "/lab/"];
 
-const NAV = [
-  ["/", "Observatory"],
-  ["/experiment/", "Live experiment"],
-  ["/how/", "How it works"],
-  ["/selection/", "Selection day"],
-  ["/population/", "Population"],
-  ["/genome/", "Genome"],
-  ["/lineage/", "Lineage"],
-  ["/fossils/", "Fossils"],
-  ["/ledger/", "Ledger"],
-  ["/cells/", "Cell atlas"],
-  ["/report/", "Report"],
-  ["/protocol/", "Protocol"],
-  ["/test-run/", "Test run"],
-  ["/verify/", "Verify"],
-  ["/lab/", "The Lab"],
-  ["/chord/", "$CHORD"],
+const NAV: { title: string | null; links: [string, string][] }[] = [
+  { title: null, links: [["/", "Observatory"], ["/experiment/", "Live experiment"], ["/how/", "How it works"]] },
+  { title: "Archive", links: [["/selection/", "Selection day"], ["/population/", "Population"], ["/genome/", "Genome"], ["/lineage/", "Lineage"], ["/fossils/", "Fossils"], ["/ledger/", "Ledger"], ["/cells/", "Cell atlas"]] },
+  { title: "Evidence", links: [["/report/", "Report"], ["/protocol/", "Protocol"], ["/verify/", "Verify"], ["/test-run/", "Test run"]] },
+  { title: "Token", links: [["/lab/", "The Lab"], ["/chord/", "$CHORD"]] },
 ];
 
 function TimeMachine() {
@@ -51,6 +39,7 @@ function TimeMachine() {
           : <svg viewBox="0 0 12 12" width="12"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>}
       </button>
       <div className="genRead">
+        <span className="archiveTag">Archive, simulation</span>
         <b>Generation {gen}</b>
         <span>{row ? `${dateOf(row.t)}, HYPE ${row.m > 0 ? "+" : ""}${fmt(row.m)} bps` : "Loading"}</span>
       </div>
@@ -89,8 +78,15 @@ function Frame({ children }: { children: React.ReactNode }) {
         <SimChip />
         <button className="menuBtn" aria-expanded={menuOpen} aria-controls="siteMenu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
         <ul id="siteMenu" className={menuOpen ? "open" : ""}>
-          {NAV.map(([href, label]) => (
-            <li key={href}><Link href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link></li>
+          {NAV.map((group) => (
+            <li key={group.title ?? "main"} className="navGroup">
+              {group.title && <span>{group.title}</span>}
+              <ul>
+                {group.links.map(([href, label]) => (
+                  <li key={href}><Link href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link></li>
+                ))}
+              </ul>
+            </li>
           ))}
           <li><a href="https://x.com/notochordx" target="_blank" rel="noreferrer">X</a></li>
         </ul>

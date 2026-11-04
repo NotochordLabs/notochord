@@ -672,3 +672,27 @@ body[data-live] .app { grid-template-rows: minmax(0, 1fr); }
 @media (min-width: 1081px) { .labStep .fossilPlate { grid-template-columns: repeat(20, minmax(0, 1fr)); } }
 .fossilWell.control:disabled { cursor: not-allowed; opacity: .55; }
 .fossilWell.control:disabled:hover { transform: none; color: transparent; }
+
+/* Navigation groups say what a page is: the live run, the archive, the evidence, the token. */
+.navGroup { margin: 0; }
+.navGroup + .navGroup { margin-top: 0.8rem; }
+.navGroup > span { display: block; padding: 0 0.55rem 0.2rem; font-size: 0.76rem; color: #7c88ab; }
+.navGroup > ul { display: block; }
+.navGroup a { padding-block: 0.3rem !important; }
+.archiveTag { display: block; margin-bottom: 0.1rem; font-size: 0.74rem; color: var(--cyan); }
+@media (max-height: 980px) and (min-width: 761px) {
+  .brand { margin-bottom: 0.6rem; }
+  .navGroup + .navGroup { margin-top: 0.5rem; }
+  .navGroup a { padding-block: 0.17rem !important; }
+  .rail > ul > li > a { padding-block: 0.17rem; }
+  .railNote { padding-top: 0.5rem; font-size: 0.74rem; line-height: 1.3; }
+}
+@media (max-height: 760px) and (min-width: 761px) {
+  .navGroup + .navGroup { margin-top: 0.45rem; }
+  .navGroup a { padding-block: 0.16rem !important; font-size: 0.9rem !important; }
+}
+@media (max-width: 760px) {
+  .navGroup + .navGroup { margin-top: 0; }
+  .navGroup > ul { display: block; }
+  .ledgerTable td { white-space: nowrap; }
+}

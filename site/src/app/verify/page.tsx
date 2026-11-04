@@ -3,12 +3,12 @@ export default function Page() {
     <article className="screen paper">
       <header>
         <h1>Verify</h1>
-        <p>You should not have to trust this site. Here is what can be checked, how, and what cannot be checked yet.</p>
+        <p>You should not have to trust this site. Here is what can be checked, how.</p>
       </header>
 
       <section>
         <h2>Status</h2>
-        <p>The contracts run on Elysium, and anyone can recompute the record from public data. Run <code>npm run runner:verify -- --manifest &lt;the manifest in site/public/live&gt;</code> from <a href="https://github.com/NotochordLabs/notochord/tree/48d6fbf">the locked code</a>.</p>
+        <p>The contracts run on Elysium, and anyone can recompute the record from public data. Run the command below from <a href="https://github.com/NotochordLabs/notochord/tree/48d6fbf">the locked code</a>, with the manifest in <code>site/public/live</code>.</p>
       </section>
 
       <section>

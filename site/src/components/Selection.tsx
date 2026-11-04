@@ -203,7 +203,7 @@ export default function Selection() {
     <div className="screen selection">
       <header>
         <h1>Selection day</h1>
-        <p>Every day half of the brains are removed for good. This is an accelerated replay of recorded data. When the experiment runs on chain, this screen follows the real 24-hour clock.</p>
+        <p>Every day half of the brains are removed for good. This is an accelerated replay of archived, simulated data. The run on Elysium follows the real 24-hour clock: see the <a href="/experiment/">live experiment</a>.</p>
       </header>
 
       <div className="selBar" aria-live="polite">

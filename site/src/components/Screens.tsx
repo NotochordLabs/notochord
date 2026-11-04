@@ -520,10 +520,10 @@ export function Ledger() {
     <div className="screen">
       <header>
         <h1>Ledger</h1>
-        <p>One entry per generation, up to the point on the time machine. This is the record the contracts will store. Transactions appear here once the experiment runs on Elysium; until then every entry is marked simulated.</p>
+        <p>One entry per generation, up to the point on the time machine. This is the archived simulation, on historical data, so every entry is marked simulated. For the run on Elysium, see the <a href="/experiment/">live experiment</a>.</p>
       </header>
       <div className="tableWrap">
-        <table>
+        <table className="ledgerTable">
           <thead><tr><th className="num">Generation</th><th>Date</th><th className="num">HYPE, bps</th><th className="num">Selection</th><th className="num">Control</th><th>Top specimen</th><th className="num">Eliminated</th><th className="num">Born</th><th>Fossil</th><th>Transaction</th></tr></thead>
           <tbody>
             {events.map((e) => (

@@ -15,7 +15,7 @@ export default function Page() {
   return (
     <article className="screen paper">
       <header>
-        <h1>Protocol and first measurement</h1>
+        <h1>Protocol and earlier test</h1>
         <p>The method, what was measured, and what the result does not show.</p>
       </header>
 
@@ -36,7 +36,7 @@ export default function Page() {
       </section>
 
       <section>
-        <h2>First measurement: not distinguishable from chance</h2>
+        <h2>Earlier test: not distinguishable from chance</h2>
         <p><b>Correction, 3 November 2026.</b> The first run used a public copy of the wiring whose outgoing connections carried the wrong cell names for 192 of 205 rows. The wiring now comes from the paper’s own matrix, and the run below was repeated on it. It reused the same week, so it is a corrected record and not a fresh test.</p>
         <p>Success requires selection to lead in all six replicates (one-sided p ≤ {data.alpha}). None of the three questions passed, nor did they pass the looser p &lt; 0.05. The threshold was fixed after these results were seen.</p>
         <div className="tableWrap">
