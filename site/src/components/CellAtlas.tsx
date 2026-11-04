@@ -37,7 +37,7 @@ export default function CellAtlas() {
         <span className="dim small" aria-live="polite">{shown.length} shown</span>
       </div>
       <div className="tableWrap">
-        <table>
+        <table className="atlasTable">
           <thead><tr><th>Cell</th><th>Type in the paper</th><th>Side</th><th className="num">Receives from</th><th className="num">Sends to</th><th>In this experiment</th></tr></thead>
           <tbody>
             {shown.map((r) => (

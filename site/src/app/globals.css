@@ -696,3 +696,16 @@ body[data-live] .app { grid-template-rows: minmax(0, 1fr); }
   .navGroup > ul { display: block; }
   .ledgerTable td { white-space: nowrap; }
 }
+
+/* Phone: the time bar takes one row plus a thin scrubber, and wide tables keep the columns that matter. */
+@media (max-width: 760px) {
+  :root { --bar: 76px; }
+  .timeBar { --bar: 76px; gap: 0.1rem 0.5rem; padding: 0.3rem 0.6rem; }
+  .play { width: 28px; height: 28px; }
+  .scrub { height: 22px; }
+  .archiveTag { display: none; }
+  .ledgerTable th:nth-child(n + 6), .ledgerTable td:nth-child(n + 6) { display: none; }
+  .ledgerTable th, .ledgerTable td { padding-right: 0.55rem; font-size: 0.86rem; }
+  .ledgerTable th:last-child, .ledgerTable td:last-child { padding-right: 0; }
+  .atlasTable th:nth-child(3), .atlasTable td:nth-child(3), .atlasTable th:nth-child(4), .atlasTable td:nth-child(4), .atlasTable th:nth-child(5), .atlasTable td:nth-child(5) { display: none; }
+}
