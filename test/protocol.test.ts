@@ -19,9 +19,10 @@ test("the protocol file and the code state the same rules", () => {
   assert.ok(p.seed.length > 0);
 });
 
-test("an unlocked protocol cannot be deployed as the experiment", () => {
-  assert.equal(p.status === LOCKED, false, "update this test when the protocol is locked");
-  assert.match(deploymentProblems(full, p).join(), /not locked/);
+test("the protocol is locked, and an unlocked one cannot be deployed as the experiment", () => {
+  assert.equal(p.status, LOCKED);
+  assert.deepEqual(deploymentProblems(full, p), []);
+  assert.ok(deploymentProblems(full, { ...p, status: "draft" }).length > 0);
 });
 
 test("a locked deployment must match the protocol exactly", () => {

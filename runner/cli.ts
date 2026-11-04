@@ -22,7 +22,7 @@ const num = (name: string, fallbackValue: number) => (arg(name) !== undefined ? 
 
 const ELYSIUM_CHAIN_ID = 99901;
 /** rpc.chainzy.io answers reads and returns a hash for writes, but the transaction never reached the chain (3 Nov 2026). */
-const DEFAULT_RPCS = ["https://rpc-live.boxa.club"];
+const DEFAULT_RPCS = ["https://rpc.betweenquotes.xyz"];
 /** anvil's public test key #0. Never holds real funds. */
 const ANVIL_KEY: Hex = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 const LOCAL_CHAIN_ID = 31337;

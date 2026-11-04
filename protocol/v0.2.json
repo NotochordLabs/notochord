@@ -1,17 +1,39 @@
 {
   "version": "0.2",
-  "status": "draft, not locked",
+  "status": "locked",
   "seed": "experiment-177-chain-v0.2",
-  "market": { "coin": "HYPE", "quote": "USDC", "interval": "1h", "source": "Hyperliquid" },
-  "populations": { "selection": 64, "control": 16 },
+  "market": {
+    "coin": "HYPE",
+    "quote": "USDC",
+    "interval": "1h",
+    "source": "Hyperliquid"
+  },
+  "populations": {
+    "selection": 64,
+    "control": 16
+  },
   "generations": 100,
   "hoursPerGeneration": 24,
   "holdoutHours": 672,
   "mutationRate": 0.01,
   "feeBps": 3,
-  "replicates": { "main": 6, "shuffledWiring": 6 },
-  "test": { "kind": "exact one-sided sign-flip across main replicates", "alpha": 0.016, "mustBeat": ["control", "not trading"] },
+  "replicates": {
+    "main": 6,
+    "shuffledWiring": 6
+  },
+  "test": {
+    "kind": "exact one-sided sign-flip across main replicates",
+    "alpha": 0.016,
+    "mustBeat": [
+      "control",
+      "not trading"
+    ]
+  },
   "secondary": "Selection fitness on real wiring against shuffled wiring. Exploratory, reported separately, never changes the main result.",
-  "wording": { "fail": "Market learning not shown.", "pass": "Selection beat control and not trading on this period." },
-  "node": "22.23.4"
+  "wording": {
+    "fail": "Market learning not shown.",
+    "pass": "Selection beat control and not trading on this period."
+  },
+  "node": "22.23.4",
+  "lockedAt": "2026-11-04"
 }
