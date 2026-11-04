@@ -35,8 +35,8 @@ Site: [notochord.live](https://www.notochord.live) · X: [@notochordx](https://x
 
 Running on Elysium (chain ID 99901) since 4 November 2026 under protocol v0.2, locked at commit `48d6fbf`. Protocol hash: `0x00dee041adba5494dc69dbc09031534a0864485b6bd2263a3953279dc909d3a7`. No result yet. Contract addresses are in [`site/public/live/experiment-177.json`](site/public/live/experiment-177.json).
 
-When the protocol is locked, the experiment will run on Kinetiq Elysium beta
-mainnet: six replicates on the real wiring and six on shuffled wiring.
+Six replicates run on the real wiring and six on shuffled wiring, on Kinetiq
+Elysium beta mainnet. The site's charts remain a simulation on historical data.
 
 ## Result so far
 
