@@ -7,10 +7,11 @@ import LiveStatus, { SimChip } from "@/components/LiveStatus";
 import { dateOf, ExperimentProvider, fmt, GENERATIONS, REPLICATES, useExperiment } from "@/lib/store";
 
 /** Reading pages have nothing that moves with the generation, so they get no time bar. */
-const NO_TIME_BAR = ["/cells/", "/report/", "/protocol/", "/verify/", "/chord/", "/how/", "/test-run/"];
+const NO_TIME_BAR = ["/cells/", "/report/", "/protocol/", "/verify/", "/chord/", "/how/", "/test-run/", "/experiment/"];
 
 const NAV = [
   ["/", "Observatory"],
+  ["/experiment/", "Live experiment"],
   ["/how/", "How it works"],
   ["/selection/", "Selection day"],
   ["/population/", "Population"],

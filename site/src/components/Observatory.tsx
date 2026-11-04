@@ -1,6 +1,7 @@
 "use client";
 
 import { HeadStatus } from "@/components/LiveStatus";
+import { useLiveFeed } from "@/lib/live";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -167,7 +168,17 @@ export default function Observatory() {
     setHour(acted >= 0 ? acted : 0);
   }, [run]);
 
-  const thought: ThoughtRecord | undefined = run?.thoughts[Math.min(hour, (run?.thoughts.length ?? 1) - 1)];
+  // Live: the latest on-chain hour recomputed here. Larva and brain both draw from `thought`.
+  const feed = useLiveFeed();
+  const [source, setSource] = useState<"live" | "archive" | null>(null);
+  const liveBrain = feed.brain;
+  const liveOn = !!liveBrain && (source ?? "live") === "live";
+  useEffect(() => {
+    if (liveOn) document.body.dataset.live = "1";
+    else delete document.body.dataset.live;
+    return () => { delete document.body.dataset.live; };
+  }, [liveOn]);
+  const thought: ThoughtRecord | undefined = liveOn ? liveBrain.run.thoughts[0] : run?.thoughts[Math.min(hour, (run?.thoughts.length ?? 1) - 1)];
 
   useEffect(() => {
     framesRef.current = thought?.frames ?? [];
@@ -621,8 +632,8 @@ export default function Observatory() {
         {stage === 2 && !intro && (
           <div className="signal" aria-live="off">
             <div className="signalIn">
-              <span>Price this hour <b>{market ? `${market.r1[start + hour] > 0 ? "+" : ""}${fmt(market.r1[start + hour])} bps` : "…"}</b></span>
-              <span>Volume vs 24h <b>{market ? `${market.dv[start + hour] > 0 ? "+" : ""}${fmt(market.dv[start + hour])} bps` : "…"}</b></span>
+              <span>Price this hour <b>{liveOn ? `${signed(liveBrain.r1)} bps` : market ? `${market.r1[start + hour] > 0 ? "+" : ""}${fmt(market.r1[start + hour])} bps` : "…"}</b></span>
+              <span>Volume vs 24h <b>{liveOn ? `${signed(liveBrain.dv)} bps` : market ? `${market.dv[start + hour] > 0 ? "+" : ""}${fmt(market.dv[start + hour])} bps` : "…"}</b></span>
               <span>Step <b ref={gaugeStep}>0/32</b></span>
             </div>
             <div className="race">
@@ -648,6 +659,12 @@ export default function Observatory() {
           </div>
         )}
         <div className="scopeFoot">
+          {liveBrain && (
+            <div className="lifeCycle" role="group" aria-label="Data source">
+              <button aria-pressed={liveOn} onClick={() => setSource("live")}>Live</button>
+              <button aria-pressed={!liveOn} onClick={() => setSource("archive")}>Archive</button>
+            </div>
+          )}
           <div className="lifeCycle" role="group" aria-label="Life stage">
             {STAGES.map((x, i) => (
               <button key={x.name} aria-pressed={stage === i} onClick={() => setStage(i as Stage)}>{x.name}</button>
@@ -659,7 +676,27 @@ export default function Observatory() {
       </div>
 
       <aside className="bench">
-        {rep !== 1 ? (
+        {liveOn ? (
+          <>
+            <div className="block">
+              <h3>Live: specimen {liveBrain.specimen}</h3>
+              <dl className="readout">
+                <div><dt>Decision</dt><dd className={thought?.decision === 1 ? "buy" : thought?.decision === -1 ? "sell" : ""}>{thought ? decisionWord(thought.decision) : "…"}</dd></div>
+                <div><dt>Cells fired</dt><dd>{thought?.fired ?? "…"}/{cells.length}</dd></div>
+                <div><dt>Right motor</dt><dd>{thought?.motorR ?? "…"}</dd></div>
+                <div><dt>Left motor</dt><dd>{thought?.motorL ?? "…"}</dd></div>
+              </dl>
+            </div>
+            <div className="block">
+              <h3>Spike raster, 32 steps</h3>
+              <canvas ref={raster} className="raster" role="img" aria-label="Which cells fired at each of the 32 steps of this thought." />
+            </div>
+            <div className={`verify ${liveBrain.agrees ? "" : "bad"}`}>
+              <h3>{liveBrain.agrees ? "Matches the chain" : "Does not match the chain"}</h3>
+              <p>Generation {liveBrain.generation + 1}, hour {liveBrain.hour + 1}, {new Date(liveBrain.candleMs).toISOString().slice(0, 16).replace("T", " ")} UTC. This browser recomputed the thought from the generation {liveBrain.fossilGeneration + 1} fossil on Elysium and the public HYPE candle. Updates hourly.</p>
+            </div>
+          </>
+        ) : rep !== 1 ? (
           <div className="block">
             <h3>Replicate {rep}</h3>
             <p className="dim">This preview publishes genomes for replicate 1 only, so its thoughts can be recomputed here. Population, lineage and ledger cover all six.</p>

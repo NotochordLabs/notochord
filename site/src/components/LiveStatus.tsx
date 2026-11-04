@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLiveFeed } from "@/lib/live";
 
 /**
  * Says "live" only when a published deployment answers on chain. Until
@@ -61,10 +62,12 @@ export default function LiveStatus() {
 /** The headline state of the experiment. Same rule: on-chain wording only from a chain answer. */
 export function HeadStatus() {
   const { live, deployed } = useLive();
+  const { latest } = useLiveFeed();
   const phase = !deployed ? "Not started on chain" : !live ? "On chain since 4 Nov 2026" : live.finished ? `All ${live.total} generations closed` : `Generation ${live.gen + 1} of ${live.total}, on chain`;
   return (
     <dl className="headStatus">
       <div><dt>Experiment</dt><dd>{phase}</dd></div>
+      {latest && <div><dt>This hour, {latest.replicates} replicates</dt><dd>{latest.buy} buy, {latest.sell} sell, {latest.hold} hold</dd></div>}
       <div><dt>Earlier test</dt><dd>Market learning not shown</dd></div>
       <div className="headLink"><a className="headPrimary" href="/how/">How it works</a><a href="/report/">Read the report</a></div>
     </dl>

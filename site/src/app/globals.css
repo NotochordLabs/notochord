@@ -418,3 +418,11 @@ body[data-intro] .stage { grid-row: 1; }
 @media (min-width: 761px) and (max-width: 1280px) {
   .observatory:not(.calm) .stageNote { display: none; }
 }
+
+/* The time bar scrubs the archive; in live view it would describe something else. */
+body[data-live] .timeBar { display: none; }
+body[data-live] .app { grid-template-rows: minmax(0, 1fr); }
+@media (max-width: 760px) { body[data-live] .app { grid-template-rows: auto minmax(0, 1fr); } }
+.liveCount { margin-top: 0.6rem; font-size: 1.15rem; color: var(--muted); }
+.liveCount b { margin-left: 0.8rem; font-size: 2rem; font-weight: 500; color: var(--text); }
+.liveCount b:first-child { margin-left: 0; }
