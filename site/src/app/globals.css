@@ -335,6 +335,17 @@ body[data-intro] .stage { grid-row: 1; }
 .tokenAddress button:hover { background: #fff; }
 .tokenAddress button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
+.chordUse { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; margin-top: 3.5rem; }
+.chordUse h2 { margin: 0 0 0.8rem; font-size: clamp(1.7rem, 3.4vw, 2.4rem); font-weight: 500; line-height: 1.1; color: var(--text); }
+.chordUse p { margin: 0; max-width: 54ch; font-family: var(--serif); font-size: 1.15rem; line-height: 1.5; color: var(--text); }
+.chordCta { display: inline-block; margin-top: 1.2rem; padding: 0.65rem 1.2rem; border-radius: 6px; background: var(--text); color: var(--dark); font-weight: 600; text-decoration: none; }
+.chordCta:hover { background: #fff; }
+.chordCta:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.chordUse dl { margin: 0; }
+.chordUse dl > div { padding: 0.8rem 0; border-top: 1px solid var(--line); }
+.chordUse dl > div:first-child { border-top: 0; padding-top: 0; }
+.chordUse dt { font-size: 0.92rem; color: var(--muted); }
+.chordUse dd { margin: 0.2rem 0 0; font-size: 1.25rem; color: var(--text); }
 .chordTruth { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3rem; margin-top: 3.5rem; }
 .chordTruth h2, .chordFacts h2 { margin: 0 0 1rem; font-size: 1.4rem; font-weight: 500; color: var(--text); }
 .chordTruth p { margin: 0 0 1rem; font-family: var(--serif); font-size: 1.08rem; line-height: 1.55; color: var(--text); }
@@ -356,6 +367,7 @@ body[data-intro] .stage { grid-row: 1; }
   .chordHero { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
   .chordHero img { order: -1; max-width: 190px; margin: 0; }
   .chordTruth { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; margin-top: 2.5rem; }
+  .chordUse { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
   .chordFacts { margin-top: 2.5rem; }
   .chordFacts dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

@@ -37,14 +37,27 @@ export default function Page() {
         )}
       </section>
 
+      <section className="chordUse">
+        <div>
+          <h2>Use it in the Lab</h2>
+          <p>{TOKEN.ticker} breeds new brains. Pick two parents from the experiment’s fossils or earlier Lab brains and burn {TOKEN.ticker}. Your brain is born the next day, then races 24 hours of live HYPE on paper, on the public record.</p>
+          <Link className="chordCta" href="/lab/">Open the Lab</Link>
+        </div>
+        <dl>
+          <div><dt>Cost per brain</dt><dd>10,000 {TOKEN.ticker}</dd></div>
+          <div><dt>Brains per day</dt><dd>200 at most</dd></div>
+          <div><dt>Prizes</dt><dd>None</dd></div>
+        </dl>
+      </section>
+
       <div className="chordTruth">
         <section>
-          <h2>Utility</h2>
-          <p>Use cases for {TOKEN.ticker} are planned and will be announced on this page. They are not live yet.</p>
+          <h2>Burned for good</h2>
+          <p>Each breeding sends {TOKEN.ticker} straight to the dead address in the same transaction. The Lab holds no tokens. The cost and the daily limit are fixed in its contract.</p>
         </section>
         <section>
           <h2>Independent science</h2>
-          <p>The experiment’s rules are public and no token can change them, so anyone can check its result, whatever it is.</p>
+          <p>Lab brains never enter Experiment 177. The Lab only reads its fossils, and no token can change the experiment’s rules or its result.</p>
         </section>
       </div>
 
@@ -59,7 +72,7 @@ export default function Page() {
           ))}
         </dl>
         <p>The experiment’s wallet is separate from every token wallet.</p>
-        <p className="chordNotice">{TOKEN.ticker} is not an investment and promises no returns. It gives no claim on funds or revenue, and its value can fall. The experiment’s outcome is open: the test so far reports market learning not shown. <Link href="/report/">Read the report</Link>.</p>
+        <p className="chordNotice">{TOKEN.ticker} is not an investment and promises no returns. It gives no claim on funds or revenue, and its value can fall. A Lab brain’s race says nothing about the market or about the experiment. The experiment’s outcome is open: the test so far reports market learning not shown. <Link href="/report/">Read the report</Link>.</p>
       </section>
     </article>
   );
