@@ -27,7 +27,7 @@ export default function CellAtlas() {
     <article className="screen">
       <header>
         <h1>Cell atlas</h1>
-        <p>Every cell in the wiring, checked against the table published with the paper. {matched} of {rows.length} are matched by name, including all the cells that feel the market and all that vote. The rest are left unmatched rather than guessed.</p>
+        <p>Every cell in the wiring. {matched} of {rows.length} match the paper’s table by name; the rest are left unmatched rather than guessed.</p>
       </header>
       <div className="atlasBar">
         <div className="reps atlasFilters" role="group" aria-label="Filter cells">

@@ -11,7 +11,7 @@ export default function Page() {
     <article className="testRun">
       <header>
         <h1>Experiment 177, live</h1>
-        <p>Read from Elysium as you watch. Twelve independent populations: six on the larva’s real wiring, six on shuffled wiring. Paper trades only. A running experiment is not a result: the test comes only after 100 generations and 28 unseen days.</p>
+        <p>Read from Elysium as you watch, on paper trades only. A running experiment is not a result: the test comes after 100 generations and 28 unseen days.</p>
       </header>
       <LiveExperiment />
     </article>

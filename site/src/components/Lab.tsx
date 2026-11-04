@@ -153,6 +153,24 @@ type Flow =
   | { step: "done"; id: number | null; tx: string }
   | { step: "error"; message: string };
 
+/** Brains bred per Lab day, read from the contract's own events. */
+function BredPerDay({ list, cfg }: { list: LabBrain[]; cfg: LabConfig }) {
+  const days = new Map<number, number>();
+  for (const b of list) days.set(b.day, (days.get(b.day) ?? 0) + 1);
+  const rows = [...days.entries()].sort((a, b) => a[0] - b[0]).slice(-30);
+  const top = Math.max(...rows.map(([, n]) => n));
+  return (
+    <figure className="bredChart">
+      <figcaption>Brains bred per day</figcaption>
+      <div role="img" aria-label={rows.map(([d, n]) => `${utc(dayStart(cfg, d)).slice(0, 10)}: ${n}`).join(", ")}>
+        {rows.map(([d, n]) => (
+          <span key={d} title={`${utc(dayStart(cfg, d)).slice(0, 10)}: ${n}`}><b>{n}</b><i style={{ height: `${(n / top) * 100}%` }} /></span>
+        ))}
+      </div>
+    </figure>
+  );
+}
+
 export default function Lab() {
   const now = useNow();
   const [cfg, setCfg] = useState<LabConfig | null>(null);
@@ -570,6 +588,8 @@ export default function Lab() {
         </div>
       </section>
 
+      {lab && lab.list.length > 0 && cfg && <BredPerDay list={lab.list} cfg={cfg} />}
+
       <section className="labBrains" aria-label="Lab brains">
         <div className="pickerBar">
           <h2>Lab brains</h2>
@@ -626,21 +646,21 @@ export default function Lab() {
       </section>
 
       <section className="labTrust">
-        <div>
-          <h2>What the Lab can never do</h2>
+        <details className="more">
+          <summary>What the Lab can never do</summary>
           <ul>
             <li><b>Touch the experiment.</b> It only reads fossils. The experiment’s contracts and its protocol hash know nothing of the Lab.</li>
             <li><b>Hold your tokens.</b> $CHORD goes from your wallet to <code>{short(DEAD)}</code> in the same transaction.</li>
             <li><b>Change its terms.</b> Cost, daily cap, token and operator are fixed when the contract is deployed. It can only be closed to new breeding.</li>
             <li><b>Pay anything out.</b> There are no prizes. A good race is a record, nothing more.</li>
           </ul>
-        </div>
-        <div>
-          <h2>Check it yourself</h2>
+        </details>
+        <details className="more">
+          <summary>Check it yourself</summary>
           <p>Births and results are written by the Lab’s own wallet, separate from the experiment’s. The contract makes sure a birth cannot be written before its drand round exists, or a result before its day has closed. To check the rest, rebuild every child and every race from public data:</p>
           <pre className="command"><code>npm run lab:verify -- --manifest site/public/live/lab.json</code></pre>
           <p className="dim small">It reads the Lab’s events, the fossils, drand and Hyperliquid’s candles, and needs no wallet. <a href="https://github.com/NotochordLabs/notochord/blob/main/lab/RULES.md" target="_blank" rel="noreferrer">Full rules</a>{cfg?.lab && <> · contract <code>{short(cfg.lab.address)}</code></>}.</p>
-        </div>
+        </details>
       </section>
       <p className="labNotice">$CHORD burned in the Lab is gone for good and buys no claim on anything. A Lab brain’s race says nothing about the experiment’s result.</p>
     </article>

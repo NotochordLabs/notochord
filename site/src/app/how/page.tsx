@@ -93,9 +93,7 @@ export default function Page() {
       </ol>
       <section className="howFaq">
         <h2>Common questions</h2>
-        <dl>
-          {FAQ.map(([q, a]) => <div key={q}><dt>{q}</dt><dd>{a}</dd></div>)}
-        </dl>
+        {FAQ.map(([q, a]) => <details className="more" key={q} open={q === "Has it worked so far?"}><summary>{q}</summary><p>{a}</p></details>)}
       </section>
       <nav className="howNext">
         <Link href="/">See the brain</Link>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HoldoutPlot } from "@/components/Screens";
+import { HoldoutPlot, TrainingPlot } from "@/components/Screens";
 import data from "@/data/experiment.json";
 import power from "@/data/power.json";
 
@@ -28,6 +28,10 @@ export default function Page() {
       <section>
         <h2>The answer so far: not shown</h2>
         <p>Selection did not clear the threshold of p ≤ {data.alpha}, set for all three comparisons. That does not prove the brains cannot learn. It means this measurement does not show that they did.</p>
+        <figure className="reportFigure">
+          <TrainingPlot />
+          <figcaption><b>Figure 1.</b> Daily fitness added up over 100 generations, mean of six replicates. Simulation on historical data. Both groups lose, and the gap is not significant (p = {t.training.p.toFixed(3)}).</figcaption>
+        </figure>
         <div className="tableWrap">
           <table>
             <thead><tr><th>Comparison</th><th className="num">Mean difference</th><th className="num">Replicates ahead</th><th className="num">p</th></tr></thead>
@@ -37,7 +41,7 @@ export default function Page() {
         <p className="afterTable">The numbers are fitness: return minus half the deepest drawdown, after a 3 bps fee. Holding through the same week returned {n(t.buyHold)} bps, which is a return and not a fitness, so it does not compare directly.</p>
         <figure className="reportFigure">
           <HoldoutPlot />
-          <figcaption><b>Figure 1.</b> Unseen week, {data.data.holdoutFrom.slice(0, 10)} to {data.data.holdoutTo.slice(0, 10)}. Fitness in bps.</figcaption>
+          <figcaption><b>Figure 2.</b> Unseen week, {data.data.holdoutFrom.slice(0, 10)} to {data.data.holdoutTo.slice(0, 10)}. Fitness in bps.</figcaption>
         </figure>
       </section>
 
@@ -51,13 +55,13 @@ export default function Page() {
         </ul>
       </section>
 
-      <section>
-        <h2>What went wrong along the way</h2>
+      <details className="more">
+        <summary>What went wrong along the way</summary>
         <p>The first run used a public copy of the wiring in which outgoing connections carried the wrong cell’s name in 192 of 205 rows. Comparing it with the paper’s matrix exposed the error. The wiring now comes from the paper directly, and results made on the old copy are withdrawn. The details are on the <Link href="/verify/">Verify</Link> page.</p>
-      </section>
+      </details>
 
-      <section>
-        <h2>How much can this test see?</h2>
+      <details className="more">
+        <summary>How much can this test see?</summary>
         <p>We planted a pattern in artificial markets: the next move repeats the last one’s direction with a set probability. Then we asked how often the full test passes, on {power.markets} separate markets. These markets are invented and say nothing about real ones.</p>
         <div className="tableWrap">
           <table>
@@ -66,12 +70,12 @@ export default function Page() {
           </table>
         </div>
         <p className="afterTable">The test raised no false alarm, though {power.markets} markets cannot pin that rate down. It passes reliably only for a pattern far stronger than we expect in a real market, and more replicates barely help. So “not shown” does not rule out a modest effect: this design could miss it.</p>
-      </section>
+      </details>
 
-      <section>
-        <h2>Does the larva’s wiring matter?</h2>
+      <details className="more">
+        <summary>Does the larva’s wiring matter?</summary>
         <p>We repeated the study on randomised wiring: the same cells, inputs, outputs and weights, with connections shuffled. There is no sign yet that the real map learns better. On the strongest pattern, over 28 days, randomised wiring led on all 4 markets, by a mean of {n(-power.arm[2].realMinusShuffled)} bps. On the weaker pattern the real map led on {power.arm[1].marketsAhead} of 4. With 4 markets this is a description, not a test, and we do not know the cause yet.</p>
-      </section>
+      </details>
 
       <section>
         <h2>What comes next</h2>

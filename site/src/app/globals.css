@@ -29,7 +29,7 @@ button { font: inherit; color: inherit; }
 .rail ul { list-style: none; margin: 0; padding: 0; }
 .rail li a { display: block; padding: 0.42rem 0.55rem; border-radius: 4px; color: var(--muted); text-decoration: none; font-size: 0.97rem; }
 .rail li a:hover { color: var(--text); }
-.rail li a[aria-current="page"] { background: var(--panel2); color: var(--text); box-shadow: inset 2px 0 0 var(--cyan); }
+.rail li a[aria-current] { background: var(--panel2); color: var(--text); box-shadow: inset 2px 0 0 var(--cyan); }
 .simChip { display: none; }
 @media (max-height: 720px) and (min-width: 761px) {
   .brand { margin-bottom: 0.5rem; }
@@ -181,7 +181,7 @@ summary { cursor: pointer; color: var(--dapi); font-weight: 500; font-size: 0.93
   .brand span { display: none; }
   .rail ul { display: flex; gap: 0.1rem; }
   .rail li a { white-space: nowrap; padding: 0.3rem 0.5rem; font-size: 0.88rem; }
-  .rail li a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--cyan); }
+  .rail li a[aria-current] { box-shadow: inset 0 -2px 0 var(--cyan); }
   .railNote { display: none; }
   .stage { grid-row: 2; }
   .timeBar { grid-row: 3; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0.2rem 0.5rem; padding: 0.4rem 0.6rem; }
@@ -306,7 +306,7 @@ body[data-intro] .stage { grid-row: 1; }
   .rail ul { display: none; }
   .rail ul.open { display: grid; gap: 0; position: absolute; top: 100%; left: 0; right: 0; padding: 0.4rem 0.5rem 0.7rem; background: var(--panel); border-bottom: 1px solid var(--line); }
   .rail ul.open li a { padding: 0.65rem 0.6rem; font-size: 1rem; }
-  .rail ul.open li a[aria-current="page"] { box-shadow: inset 2px 0 0 var(--cyan); }
+  .rail ul.open li a[aria-current] { box-shadow: inset 2px 0 0 var(--cyan); }
   .genRead span { display: none; }
   .timeBar { --bar: 88px; }
   .headStatus { gap: 0.4rem 1rem; }
@@ -674,26 +674,15 @@ body[data-live] .app { grid-template-rows: minmax(0, 1fr); }
 .fossilWell.control:disabled:hover { transform: none; color: transparent; }
 
 /* Navigation groups say what a page is: the live run, the archive, the evidence, the token. */
-.navGroup { margin: 0; }
-.navGroup + .navGroup { margin-top: 0.8rem; }
-.navGroup > span { display: block; padding: 0 0.55rem 0.2rem; font-size: 0.76rem; color: #7c88ab; }
-.navGroup > ul { display: block; }
-.navGroup a { padding-block: 0.3rem !important; }
 .archiveTag { display: block; margin-bottom: 0.1rem; font-size: 0.74rem; color: var(--cyan); }
 @media (max-height: 980px) and (min-width: 761px) {
   .brand { margin-bottom: 0.6rem; }
-  .navGroup + .navGroup { margin-top: 0.5rem; }
-  .navGroup a { padding-block: 0.17rem !important; }
   .rail > ul > li > a { padding-block: 0.17rem; }
   .railNote { padding-top: 0.5rem; font-size: 0.74rem; line-height: 1.3; }
 }
 @media (max-height: 760px) and (min-width: 761px) {
-  .navGroup + .navGroup { margin-top: 0.45rem; }
-  .navGroup a { padding-block: 0.16rem !important; font-size: 0.9rem !important; }
 }
 @media (max-width: 760px) {
-  .navGroup + .navGroup { margin-top: 0; }
-  .navGroup > ul { display: block; }
   .ledgerTable td { white-space: nowrap; }
 }
 
@@ -708,4 +697,74 @@ body[data-live] .app { grid-template-rows: minmax(0, 1fr); }
   .ledgerTable th, .ledgerTable td { padding-right: 0.55rem; font-size: 0.86rem; }
   .ledgerTable th:last-child, .ledgerTable td:last-child { padding-right: 0; }
   .atlasTable th:nth-child(3), .atlasTable td:nth-child(3), .atlasTable th:nth-child(4), .atlasTable td:nth-child(4), .atlasTable th:nth-child(5), .atlasTable td:nth-child(5) { display: none; }
+}
+
+/* Five sections in the rail, the pages of a section as tabs above it. */
+.subTabs { position: sticky; top: 0; z-index: 5; display: flex; gap: 0.2rem; padding: 0 clamp(0.75rem, 3vw, 2.5rem); overflow-x: auto; scrollbar-width: none; background: var(--dark); border-bottom: 1px solid var(--line); }
+.subTabs::-webkit-scrollbar { display: none; }
+.subTabs a { flex: none; padding: 0.7rem 0.7rem 0.62rem; color: var(--muted); text-decoration: none; font-size: 0.94rem; border-bottom: 2px solid transparent; }
+.subTabs a:hover { color: var(--text); }
+.subTabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--cyan); }
+
+/* Longer reading stays on the page, one click away. */
+details.more { border-top: 1px solid var(--line); padding: 0.85rem 0; margin: 0; }
+details.more > summary { cursor: pointer; font-size: 1.08rem; font-weight: 500; color: var(--text); }
+details.more > summary:hover { color: var(--cyan); }
+details.more[open] > summary { margin-bottom: 0.8rem; }
+
+/* Live: the run at a glance */
+.runLine { display: flex; gap: 6px; margin-top: 1.25rem; height: 30px; }
+.runGens { flex-basis: 0; display: flex; gap: 1px; min-width: 0; }
+.runGens i { flex: 1; min-width: 0; background: var(--panel2); overflow: hidden; }
+.runGens u { display: block; height: 100%; background: var(--cyan); }
+.runHoldout { flex-basis: 0; display: grid; place-items: center; min-width: 0; font-size: 0.74rem; line-height: 1.1; text-align: center; color: var(--muted); border: 1px dashed var(--line); }
+.voteBar { display: flex; gap: 2px; height: 14px; margin: 0.5rem 0; }
+.voteBar i { flex-basis: 0; min-width: 0; }
+.hourGrid { margin: 0.6rem 0 1.2rem; }
+.hourRow { display: grid; grid-template-columns: 1.3rem repeat(48, minmax(0, 1fr)); gap: 1px; margin-bottom: 1px; align-items: center; }
+.hourRow span { font-size: 0.78rem; color: var(--muted); }
+.hourRow i { display: block; height: 22px; background: var(--panel2); }
+.hourRow i.later { background: rgba(255, 255, 255, 0.025); }
+.hourRow i.gap, .hourKey i.gap { background: transparent; box-shadow: inset 0 0 0 1px #4a5478; }
+.hourGrid figcaption { display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; max-width: none; font: 400 0.82rem/1.45 var(--sans); }
+.hourKey { display: inline-flex; align-items: center; gap: 0.35rem; }
+.hourKey i { width: 11px; height: 11px; }
+
+/* Report and protocol charts */
+.chartRead { margin-left: auto; }
+.chart svg { touch-action: pan-y; }
+.protoTop { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 2rem; align-items: start; margin-bottom: 1.5rem; }
+.protoFacts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--line); border: 1px solid var(--line); }
+.protoFacts > div { padding: 0.9rem; background: var(--panel); }
+.protoFacts dt { font-size: 0.82rem; line-height: 1.3; color: var(--muted); }
+.protoFacts dd { margin: 0.25rem 0 0; font-size: 1.5rem; line-height: 1.1; color: var(--text); }
+
+/* Verify: what a check compares */
+.flow { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.4rem; margin: 0 0 1.75rem; padding: 0; }
+.flow li { position: relative; padding: 0.8rem 0.9rem; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+.flow li + li::before { content: ""; position: absolute; left: -1.05rem; top: 50%; width: 0.7rem; height: 0.7rem; border-top: 1px solid var(--cyan); border-right: 1px solid var(--cyan); transform: translateY(-50%) rotate(45deg); }
+.flow b { display: block; margin-bottom: 0.2rem; }
+.flow span { font-size: 0.86rem; line-height: 1.35; color: var(--muted); }
+
+/* Lab: brains per day */
+.bredChart { margin: 1.5rem 0; }
+.bredChart figcaption { margin: 0 0 0.5rem; font: 500 0.95rem/1.3 var(--sans); color: var(--text); }
+.bredChart > div { display: flex; align-items: flex-end; gap: 3px; height: 110px; border-bottom: 1px solid var(--line); }
+.bredChart span { flex: 1; max-width: 42px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-width: 0; }
+.bredChart b { font-size: 0.74rem; font-weight: 400; color: var(--muted); }
+.bredChart i { display: block; width: 100%; min-height: 2px; background: var(--cherry); border-radius: 2px 2px 0 0; }
+
+/* Filter buttons keep one line, and scroll sideways on a phone. */
+.atlasFilters button { white-space: nowrap; flex: none; }
+
+@media (max-width: 760px) {
+  .atlasFilters { overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+  .protoTop { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr; gap: 1rem; }
+  .flow li + li::before { left: 1rem; top: -0.75rem; transform: rotate(135deg); }
+  .chartRead { margin-left: 0; width: 100%; }
+  .hourRow i { height: 18px; }
+  .paper .tableWrap th, .paper .tableWrap td { padding-left: 0; padding-right: 0.5rem; font-size: 0.82rem; }
+  .paper .tableWrap th:last-child, .paper .tableWrap td:last-child { padding-right: 0; }
+  .paper .tableWrap th { white-space: normal; }
 }

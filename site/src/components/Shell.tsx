@@ -9,11 +9,12 @@ import { dateOf, ExperimentProvider, fmt, GENERATIONS, REPLICATES, useExperiment
 /** Reading pages have nothing that moves with the generation, so they get no time bar. */
 const NO_TIME_BAR = ["/cells/", "/report/", "/protocol/", "/verify/", "/chord/", "/how/", "/test-run/", "/experiment/", "/lab/"];
 
-const NAV: { title: string | null; links: [string, string][] }[] = [
-  { title: null, links: [["/", "Observatory"], ["/experiment/", "Live experiment"], ["/how/", "How it works"]] },
-  { title: "Archive", links: [["/selection/", "Selection day"], ["/population/", "Population"], ["/genome/", "Genome"], ["/lineage/", "Lineage"], ["/fossils/", "Fossils"], ["/ledger/", "Ledger"], ["/cells/", "Cell atlas"]] },
-  { title: "Evidence", links: [["/report/", "Report"], ["/protocol/", "Protocol"], ["/verify/", "Verify"], ["/test-run/", "Test run"]] },
-  { title: "Token", links: [["/lab/", "The Lab"], ["/chord/", "$CHORD"]] },
+const NAV: { label: string; href: string; tabs?: [string, string][] }[] = [
+  { label: "Observatory", href: "/" },
+  { label: "Live", href: "/experiment/" },
+  { label: "Archive", href: "/selection/", tabs: [["/selection/", "Selection day"], ["/population/", "Population"], ["/genome/", "Genome"], ["/lineage/", "Lineage"], ["/fossils/", "Fossils"], ["/ledger/", "Ledger"], ["/cells/", "Cell atlas"]] },
+  { label: "Science", href: "/how/", tabs: [["/how/", "How it works"], ["/report/", "Report"], ["/protocol/", "Protocol"], ["/verify/", "Verify"], ["/test-run/", "Test run"]] },
+  { label: "$CHORD", href: "/chord/", tabs: [["/chord/", "Token"], ["/lab/", "The Lab"]] },
 ];
 
 function TimeMachine() {
@@ -64,6 +65,7 @@ function Frame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const bar = !NO_TIME_BAR.includes(pathname);
+  const section = NAV.find((n) => n.href === pathname || n.tabs?.some(([href]) => href === pathname));
   useEffect(() => setMenuOpen(false), [pathname]);
   useEffect(() => {
     if (!menuOpen) return;
@@ -78,21 +80,21 @@ function Frame({ children }: { children: React.ReactNode }) {
         <SimChip />
         <button className="menuBtn" aria-expanded={menuOpen} aria-controls="siteMenu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
         <ul id="siteMenu" className={menuOpen ? "open" : ""}>
-          {NAV.map((group) => (
-            <li key={group.title ?? "main"} className="navGroup">
-              {group.title && <span>{group.title}</span>}
-              <ul>
-                {group.links.map(([href, label]) => (
-                  <li key={href}><Link href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link></li>
-                ))}
-              </ul>
-            </li>
+          {NAV.map((n) => (
+            <li key={n.href}><Link href={n.href} aria-current={n === section ? "true" : undefined}>{n.label}</Link></li>
           ))}
           <li><a href="https://x.com/notochordx" target="_blank" rel="noreferrer">X</a></li>
         </ul>
         <LiveStatus />
       </nav>
-      <div className="stage">{children}</div>
+      <div className="stage">
+        {section?.tabs && (
+          <nav className="subTabs" aria-label={section.label}>
+            {section.tabs.map(([href, label]) => <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>)}
+          </nav>
+        )}
+        {children}
+      </div>
       {bar && <TimeMachine />}
     </div>
   );

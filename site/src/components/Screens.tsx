@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import data from "@/data/experiment.json";
 import { loadGenome, loadWiring, sha256Hex, type Wiring } from "@/lib/engine";
-import { dateOf, fitnessColor, fmt, mean, signed, useExperiment, type PopRow, GENERATIONS } from "@/lib/store";
+import { dateOf, fitnessColor, fmt, mean, signed, useExperiment, type Archive, type PopRow, GENERATIONS } from "@/lib/store";
 
 const SEL = "#6e8bff";
 const CTL = "#ff5c9a";
@@ -134,7 +134,7 @@ export function Population() {
     <div className="screen">
       <header>
         <h1>Population</h1>
-        <p>Each well is one brain, generation {gen}. Each day the better half of the selection group survives. In the control group chance decides. A ring marks a brain eliminated after this generation.</p>
+        <p>Each well is one brain in generation {gen}. A ring marks one eliminated after it.</p>
       </header>
       <div className="twoCol">
         <div>
@@ -451,7 +451,7 @@ export function Fossils() {
     <div className="screen">
       <header>
         <h1>Fossil record</h1>
-        <p>Every 10 generations the full population is preserved, so anyone can rerun the experiment from that point. Rings are the brains eliminated that day. Colour is that day’s fitness.</p>
+        <p>The full population, saved every 10 generations. Rings were eliminated that day; colour is fitness.</p>
       </header>
       <div className="strata">
         {FOSSIL_GENS.map((g) => {
@@ -520,7 +520,7 @@ export function Ledger() {
     <div className="screen">
       <header>
         <h1>Ledger</h1>
-        <p>One entry per generation, up to the point on the time machine. This is the archived simulation, on historical data, so every entry is marked simulated. For the run on Elysium, see the <a href="/experiment/">live experiment</a>.</p>
+        <p>One entry per generation of the archived simulation. For the run on Elysium, see <a href="/experiment/">Live</a>.</p>
       </header>
       <div className="tableWrap">
         <table className="ledgerTable">
@@ -540,6 +540,62 @@ export function Ledger() {
 }
 
 /* ---- protocol figures ---- */
+/** Selection and control over the archived training run, mean of the six replicates. */
+export function TrainingPlot() {
+  const [rows, setRows] = useState<{ s: number; c: number }[] | null>(null);
+  const [hover, setHover] = useState<number | null>(null);
+  useEffect(() => {
+    Promise.all([1, 2, 3, 4, 5, 6].map((k) => fetch(`/archive/r${k}.json`).then((r) => r.json()))).then((all: Archive[]) => {
+      let s = 0, c = 0;
+      setRows(all[0].generations.map((_, g) => {
+        s += mean(all.flatMap((a) => mean(a.generations[g].s.f)));
+        c += mean(all.flatMap((a) => mean(a.generations[g].c.f)));
+        return { s: Math.round(s), c: Math.round(c) };
+      }));
+    });
+  }, []);
+  if (!rows) return <p className="dim">Loading.</p>;
+  const W = 720, H = 300, left = 62, right = 16, top = 14, bottom = 30;
+  const vals = rows.flatMap((r) => [r.s, r.c]);
+  const lo = Math.min(...vals, 0), hi = Math.max(...vals, 0);
+  const x = (g: number) => left + (g / (rows.length - 1)) * (W - left - right);
+  const y = (v: number) => top + ((hi - v) / (hi - lo)) * (H - top - bottom);
+  const line = (k: "s" | "c") => rows.map((r, g) => `${g ? "L" : "M"}${x(g).toFixed(1)} ${y(r[k]).toFixed(1)}`).join("");
+  const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const g = Math.round((((e.clientX - box.left) / box.width) * W - left) / (W - left - right) * (rows.length - 1));
+    setHover(Math.max(0, Math.min(rows.length - 1, g)));
+  };
+  const h = hover === null ? null : rows[hover];
+  return (
+    <div className="chart">
+      <ul className="legend">
+        <li><span className="swatch" style={{ background: SEL }} />selection</li>
+        <li><span className="swatch" style={{ background: CTL }} />control</li>
+        <li className="chartRead">{h ? `Generation ${hover}: selection ${fmt(h.s)}, control ${fmt(h.c)}` : "Added-up fitness, bps"}</li>
+      </ul>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Added-up fitness over ${rows.length} generations. Selection ends at ${rows[rows.length - 1].s}, control at ${rows[rows.length - 1].c}.`} onPointerMove={onMove} onPointerLeave={() => setHover(null)}>
+        {ticks(lo, hi, 5).map((v) => (
+          <g key={v}>
+            <line x1={left} x2={W - right} y1={y(v)} y2={y(v)} stroke={v === 0 ? "#9aa6c9" : "#222a45"} />
+            <text className="axis" x={left - 8} y={y(v) + 4} textAnchor="end">{fmt(v)}</text>
+          </g>
+        ))}
+        {[0, 25, 50, 75, 99].map((g) => <text key={g} className="axis" x={x(g)} y={H - 8} textAnchor="middle">{g}</text>)}
+        <path d={line("c")} fill="none" stroke={CTL} strokeWidth="2" />
+        <path d={line("s")} fill="none" stroke={SEL} strokeWidth="2" />
+        {h && hover !== null && (
+          <g>
+            <line x1={x(hover)} x2={x(hover)} y1={top} y2={H - bottom} stroke="#6d779c" />
+            <circle cx={x(hover)} cy={y(h.s)} r="4" fill={SEL} />
+            <circle cx={x(hover)} cy={y(h.c)} r="4" fill={CTL} />
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
 export function HoldoutPlot() {
   const [rows, setRows] = useState<{ k: number; s: number; c: number }[] | null>(null);
   useEffect(() => {
