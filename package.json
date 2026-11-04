@@ -17,7 +17,13 @@
     "runner:run": "tsx runner/cli.ts run",
     "runner:status": "tsx runner/cli.ts status",
     "runner:verify": "tsx runner/cli.ts verify",
-    "runner:health": "tsx runner/cli.ts health"
+    "runner:health": "tsx runner/cli.ts health",
+    "lab:rehearse": "tsx lab/cli.ts rehearse",
+    "lab:deploy": "tsx lab/cli.ts deploy",
+    "lab:run": "tsx lab/cli.ts run",
+    "lab:status": "tsx lab/cli.ts status",
+    "lab:verify": "tsx lab/cli.ts verify",
+    "check:locks": "tsx scripts/check-locks.ts"
   },
   "engines": {
     "node": ">=20"

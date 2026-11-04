@@ -19,6 +19,7 @@
     "src",
     "scripts",
     "test",
-    "runner"
+    "runner",
+    "lab"
   ]
 }

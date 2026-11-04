@@ -1,0 +1,34 @@
+name: checks
+
+# Every push and pull request: the on-chain locks hold, the tests pass, the site builds.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            site/package-lock.json
+      - run: npm ci
+      - name: On-chain locks (experiment protocolHash, Lab rulesHash)
+        run: npm run check:locks
+      - run: npm test
+      - run: npx tsc --noEmit -p .
+      - name: Site
+        working-directory: site
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm run build

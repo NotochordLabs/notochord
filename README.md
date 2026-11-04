@@ -179,3 +179,7 @@ Prices from Hyperliquid's public `info` API. Randomness from drand quicknet.
 Code: [AGPL-3.0](LICENSE). Data: [CC BY 4.0](LICENSE-DATA.md). If you run a
 modified version of this code as a public service, you have to publish your
 changes too.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md): some files are locked by hashes recorded on chain.

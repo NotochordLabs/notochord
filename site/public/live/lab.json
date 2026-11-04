@@ -1,0 +1,21 @@
+{
+  "name": "lab",
+  "chainId": 99901,
+  "lab": "0x0caaf8ae6e00777a737c2eabdffe1de32d1ca257",
+  "deployBlock": "415493",
+  "token": "0x6bd503be90d07dd4d917F885c007AfEE6e53b403",
+  "operator": "0xA1a63e39A36dD0c33968ABd28981AA615C70F961",
+  "coin": "HYPE",
+  "dayZeroMs": 1793750400000,
+  "breedCost": "10000000000000000000000",
+  "maxPerDay": 200,
+  "rulesHash": "0xf5582fafc1f6def0fd229d08acda6d37b9b4c4754a2798047a1be6f5d4276dfe",
+  "fossils": [
+    "0x3584411413e1fc7e1ae8cfe18dea181cd1fe0d4a",
+    "0x3f4250ef8871138d10e3069037f9eb576db540bb",
+    "0x7a915ce8fc387107fdb0d83844b4368697531407",
+    "0x73d7c49fc3ce58ada0369f4a58bcd123420a9fad",
+    "0xbf390f48e7b6734d3e99572a63f92763d1434471",
+    "0x726cf6d04deda8c38a6ecb85205ea29cf970f533"
+  ]
+}
