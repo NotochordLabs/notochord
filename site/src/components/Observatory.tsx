@@ -46,9 +46,9 @@ void main() {
 type Stage = 0 | 1 | 2;
 const STAGES: { name: string; caption: string; note: string }[] = [
   {
-    name: "Adult",
-    caption: "Adult sea squirt",
-    note: "Ciona intestinalis, the adult form, fixed to rock. Schematic model. The adult’s nervous system is not the one mapped here: the wiring in this experiment comes from its larva.",
+    name: "Ciona",
+    caption: "Adult sea squirts and a swimming larva",
+    note: "Ciona intestinalis: adults fixed to rock, and the swimming larva they start as. Schematic models, not to scale: a real larva is about 1 mm, shown here much enlarged. The wiring in this experiment comes from the larva, not the adult. Its tail muscle lights with this thought’s motor spikes.",
   },
   {
     name: "Larva",
@@ -86,6 +86,7 @@ const ANATOMY: [number, string, [number, number, number], number, number][] = [
   [1, "Notochord", [-1.1, 0, 0], -30, 90],
   [1, "Tail fin", [-1.85, 0.16, 0], -20, -70],
   [1, "Tail muscle", [-0.75, 0.04, 0.05], 10, -92],
+  [3, "Larva, enlarged", [0, 0, 0], -40, -66],
 ];
 
 const edgesFrom = (c: number) => {
@@ -203,6 +204,11 @@ export default function Observatory() {
     });
     // The bench is hidden on the animal views, where the canvas has no size to draw into.
   }, [thought, stage]);
+
+  // The larva-only stage belongs to the story. Outside it, the shared view takes over.
+  useEffect(() => {
+    if (!intro && stage === 1) setStage(0);
+  }, [intro, stage]);
 
   useEffect(() => {
     stageRef.current = stage;
@@ -433,6 +439,8 @@ export default function Observatory() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let tallyL = 0, tallyR = 0;
+    // After the story, adults and larva share one view. The story itself keeps its own stages.
+    let together = 0, larvaLift = 0, larvaShare = 0;
     let raf = 0, lastFrame = performance.now(), last = performance.now(), progress = 0, left = 0, right = 0;
     const v = new THREE.Vector3();
     const loop = (now: number) => {
@@ -472,6 +480,16 @@ export default function Observatory() {
       larva.visible = larvaFade.value > 0.002;
       larva.scale.setScalar(THREE.MathUtils.lerp(0.55, LARVA_SCALE, toLarva));
       larva.position.x = LARVA_X;
+      if (introRef.current) together = 0;
+      else together += (1 - together) * (reduced ? 1 : 1 - Math.exp(-dt * 1.6));
+      const shared = together * (1 - toLarva);
+      larvaFade.value = Math.max(larvaFade.value, shared);
+      larva.visible = larvaFade.value > 0.002;
+      larva.scale.setScalar(THREE.MathUtils.lerp(larva.scale.x, 0.4, shared));
+      larva.position.x = THREE.MathUtils.lerp(LARVA_X, -1.15, shared);
+      larva.position.z = THREE.MathUtils.lerp(0, 0.7, shared);
+      larvaLift = THREE.MathUtils.lerp(0, 1.2, shared);
+      larvaShare = shared;
       pigments.forEach((m) => (m.opacity = larvaFade.value));
       brain.visible = toLarva > 0.4;
       const shown = Math.max(0, Math.min(1, toLarva * 1.6 - 0.5));
@@ -510,7 +528,7 @@ export default function Observatory() {
       if (!reduced) {
         clock.uTime.value = now / 1000;
         clock.uDrive.value += ((right - left) * 0.25 - clock.uDrive.value) * 0.08;
-        larva.position.y = Math.sin(now / 2300) * 0.03;
+        larva.position.y = larvaLift + Math.sin(now / 2300) * 0.03;
         // The adult is fixed to rock: only a slow lean with the water.
         adult.rotation.z = Math.sin(now / 3800) * 0.012;
         adult.rotation.y = Math.sin(now / 5200) * 0.06;
@@ -545,9 +563,10 @@ export default function Observatory() {
         if (!node) return;
         v.set(p[0], p[1], p[2]);
         if (stage === 1) v.multiplyScalar(LARVA_SCALE).setX(v.x + LARVA_X);
+        if (stage === 3) v.copy(larva.position);
         v.project(camera);
         node.style.transform = `translate(${((v.x + 1) / 2) * el.clientWidth}px, ${((1 - v.y) / 2) * el.clientHeight}px)`;
-        node.style.opacity = introRef.current ? "0" : String(Math.max(0, 1 - Math.abs(progress - stage) * 3));
+        node.style.opacity = introRef.current ? "0" : stage === 3 ? String(larvaShare) : stage === 1 ? String(Math.max(0, 1 - Math.abs(progress - stage) * 3) * (1 - larvaShare)) : String(Math.max(0, 1 - Math.abs(progress - stage) * 3));
       });
     };
     raf = requestAnimationFrame(loop);
@@ -667,7 +686,7 @@ export default function Observatory() {
           )}
           <div className="lifeCycle" role="group" aria-label="Life stage">
             {STAGES.map((x, i) => (
-              <button key={x.name} aria-pressed={stage === i} onClick={() => setStage(i as Stage)}>{x.name}</button>
+              i === 1 ? null : <button key={x.name} aria-pressed={stage === i} onClick={() => setStage(i as Stage)}>{x.name}</button>
             ))}
           </div>
           <button className="replayIntro" onClick={() => setIntro(true)}>Replay the story</button>

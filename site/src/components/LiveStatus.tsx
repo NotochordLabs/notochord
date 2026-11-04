@@ -54,7 +54,7 @@ export default function LiveStatus() {
   if (!deployed) return <p className="railNote">Simulation preview on historical data. No funds are managed and no returns are promised.</p>;
   return (
     <p className="railNote">
-      <b>On chain, Elysium.</b> {!live ? "Current status could not be read." : live.finished ? `All ${live.total} generations closed.` : `Generation ${live.gen + 1} of ${live.total}, hour ${live.hour}.`} The charts here show the archived simulation. No funds are managed and no returns are promised.
+      <b>On chain, Elysium.</b> {!live ? "Status could not be read." : live.finished ? `All ${live.total} generations closed.` : `Generation ${live.gen + 1} of ${live.total}, hour ${live.hour}.`} Charts show the archived simulation. No funds managed, no returns promised.
     </p>
   );
 }
