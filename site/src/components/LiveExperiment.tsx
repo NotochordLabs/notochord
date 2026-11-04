@@ -48,7 +48,7 @@ export default function LiveExperiment() {
         <table>
           <thead><tr><th>Replicate</th><th>Wiring</th><th>State</th><th className="num">Generation</th><th className="num">Hour</th><th>Contract</th></tr></thead>
           <tbody>
-            {f.reps.map((r) => <tr key={r.index}><td>{r.index}</td><td>{r.shuffled ? "Shuffled" : "Real"}</td><td>{PHASES[r.phase] ?? "Unknown"}</td><td className="num">{Math.min(r.generation + 1, generations)}</td><td className="num">{r.hours}</td><td><code title={r.address}>{short(r.address)}</code></td></tr>)}
+            {f.reps.map((r) => <tr key={r.index}><td>{r.index}</td><td>{r.shuffled ? "Shuffled" : "Real"}</td><td>{PHASES[r.phase] ?? "Unknown"}</td><td className="num">{Math.min(r.generation + 1, generations)}</td><td className="num">{r.hours}</td><td><code>{short(r.address)}</code></td></tr>)}
           </tbody>
         </table>
       </div>
@@ -59,12 +59,12 @@ export default function LiveExperiment() {
           <table>
             <thead><tr><th>Replicate</th><th className="num">Generation</th><th className="num">Hour</th><th className="num">Buy</th><th className="num">Sell</th><th className="num">Hold</th><th>Transaction</th></tr></thead>
             <tbody>
-              {f.thoughts.slice(0, 12).map((t) => <tr key={t.tx}><td>{t.replicate}</td><td className="num">{t.generation + 1}</td><td className="num">{t.hour + 1}</td><td className="num">{t.buy}</td><td className="num">{t.sell}</td><td className="num">{t.hold}</td><td><code title={t.tx}>{short(t.tx)}</code></td></tr>)}
+              {f.thoughts.slice(0, 12).map((t) => <tr key={t.tx}><td>{t.replicate}</td><td className="num">{t.generation + 1}</td><td className="num">{t.hour + 1}</td><td className="num">{t.buy}</td><td className="num">{t.sell}</td><td className="num">{t.hold}</td><td><code>{short(t.tx)}</code></td></tr>)}
             </tbody>
           </table>
         </div>
       )}
-      <p className="testNote">Chain ID {f.manifest.chainId}{f.block ? `, block ${f.block.toLocaleString("en-US")}` : ""}. <a href="/live/experiment-177.json">All addresses</a>.</p>
+      <p className="testNote">Chain ID {f.manifest.chainId}{f.block ? `, block ${f.block.toLocaleString("en-US")}` : ""}.</p>
     </>
   );
 }

@@ -91,7 +91,7 @@ export default function TestRun() {
             <thead><tr><th>Generation</th><th className="num">Hour</th><th className="num">Buy</th><th className="num">Sell</th><th className="num">Hold</th><th>Transaction</th></tr></thead>
             <tbody>
               {view.thoughts.slice(0, 8).map((t) => (
-                <tr key={t.tx}><td>{t.generation + 1}</td><td className="num">{t.hour + 1}</td><td className="num">{t.buy}</td><td className="num">{t.sell}</td><td className="num">{t.hold}</td><td><code title={t.tx}>{short(t.tx)}</code></td></tr>
+                <tr key={t.tx}><td>{t.generation + 1}</td><td className="num">{t.hour + 1}</td><td className="num">{t.buy}</td><td className="num">{t.sell}</td><td className="num">{t.hold}</td><td><code>{short(t.tx)}</code></td></tr>
               ))}
             </tbody>
           </table>
@@ -100,9 +100,9 @@ export default function TestRun() {
 
       <h2>Contracts</h2>
       <dl className="testContracts">
-        <div><dt>Generation</dt><dd><code>{config.generation}</code></dd></div>
-        <div><dt>Fossil</dt><dd><code>{config.fossil}</code></dd></div>
-        <div><dt>ThoughtVerifier</dt><dd><code>{config.verifier}</code></dd></div>
+        <div><dt>Generation</dt><dd><code>{short(config.generation)}</code></dd></div>
+        <div><dt>Fossil</dt><dd><code>{short(config.fossil)}</code></dd></div>
+        <div><dt>ThoughtVerifier</dt><dd><code>{short(config.verifier)}</code></dd></div>
       </dl>
       <p className="testNote">Chain ID {config.chainId}. Read directly from Elysium at block {view.block.toLocaleString("en-US")}.</p>
     </>

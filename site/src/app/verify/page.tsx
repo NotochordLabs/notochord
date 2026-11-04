@@ -8,7 +8,7 @@ export default function Page() {
 
       <section>
         <h2>Status</h2>
-        <p>The contracts run on Elysium, and anyone can recompute the record from public data. The addresses are in <a href="/live/experiment-177.json">the experiment manifest</a>. Run <code>npm run runner:verify -- --manifest site/public/live/experiment-177.json</code> from <a href="https://github.com/NotochordLabs/notochord/tree/48d6fbf">the locked code</a>.</p>
+        <p>The contracts run on Elysium, and anyone can recompute the record from public data. Run <code>npm run runner:verify -- --manifest site/public/live/experiment-177.json</code> from <a href="https://github.com/NotochordLabs/notochord/tree/48d6fbf">the locked code</a>.</p>
       </section>
 
       <section>
