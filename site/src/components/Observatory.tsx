@@ -13,7 +13,7 @@ import { CURVE_STEPS, circuitLayout, fibrePoint } from "./circuit";
 import Intro, { introSeen } from "./Intro";
 import { buildAdult, buildLarva, buildRock } from "./ciona";
 import { loadGenome, loadWiring, replay, type Replay, type ThoughtRecord } from "@/lib/engine";
-import { dateOf, decisionWord, fmt, useExperiment } from "@/lib/store";
+import { dateOf, decisionWord, fmt, useExperiment, signed } from "@/lib/store";
 
 const cells = data.brain.cells;
 const STEP_MS = 150;
